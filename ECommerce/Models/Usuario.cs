@@ -11,6 +11,6 @@
         public string Cep { get; private set; }
         public string CPF { get; private set; }
         public Login Login { get; private set; }
-        public List<Pedido> Pedidos { get; private set; }
+        public List<Pedido> Pedidos { get; private set; } = new();
     }
 }

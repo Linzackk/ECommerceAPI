@@ -115,7 +115,7 @@ namespace ECommerce.Data
                     .IsRequired();
 
                 entity.HasOne(pi => pi.Pedido)
-                    .WithMany()
+                    .WithMany(p => p.Itens)
                     .HasForeignKey(pi => pi.IdPedido)
                     .IsRequired();
 

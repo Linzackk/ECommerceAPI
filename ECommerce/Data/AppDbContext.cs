@@ -40,6 +40,9 @@ namespace ECommerce.Data
                     .WithOne(u => u.Login)
                     .HasForeignKey<Login>(l => l.IdUsuario)
                     .IsRequired();
+
+                entity.HasIndex(l => l.IdUsuario)
+                    .IsUnique();
             });
 
             modelBuilder.Entity<Usuario>(entity =>
@@ -73,6 +76,9 @@ namespace ECommerce.Data
                 entity.Property(u => u.CPF)
                     .IsRequired()
                     .HasMaxLength(11);
+
+                entity.HasIndex(u => u.CPF)
+                    .IsUnique();
             });
 
             modelBuilder.Entity<Pedido>(entity =>
@@ -85,6 +91,10 @@ namespace ECommerce.Data
                 entity.Property(u => u.Finalizado)
                     .IsRequired();
 
+                entity.HasOne(p => p.Usuario)
+                    .WithMany(u => u.Pedidos)
+                    .HasForeignKey(p => p.IdUsuario)
+                    .IsRequired();
             });
 
             modelBuilder.Entity<PedidoItem>(entity =>
@@ -101,6 +111,17 @@ namespace ECommerce.Data
                     .IsRequired();
 
                 entity.Property(u => u.ValorUnitario)
+                    .HasColumnType("decimal(10,2)")
+                    .IsRequired();
+
+                entity.HasOne(pi => pi.Pedido)
+                    .WithMany()
+                    .HasForeignKey(pi => pi.IdPedido)
+                    .IsRequired();
+
+                entity.HasOne(pi => pi.Item)
+                    .WithMany()
+                    .HasForeignKey(pi => pi.IdItem)
                     .IsRequired();
             });
 
@@ -113,6 +134,7 @@ namespace ECommerce.Data
                     .HasMaxLength(50);
 
                 entity.Property(u => u.Preco)
+                    .HasColumnType("decimal(10,2)")
                     .IsRequired();
 
                 entity.Property(u => u.Descricao)
@@ -122,6 +144,7 @@ namespace ECommerce.Data
                     .IsRequired();
 
                 entity.Property(u => u.DataCriacao)
+                    .HasDefaultValueSql("GETDATE()")
                     .IsRequired();
             });
         }

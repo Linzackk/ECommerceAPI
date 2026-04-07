@@ -9,11 +9,11 @@ namespace ECommerce.Data
         {
         }
 
-        DbSet<Login> Login { get; set; }
-        DbSet<Usuario> Usuarios { get; set; }
-        DbSet<Pedido> Pedidos { get; set; }
-        DbSet<PedidoItem> PedidosItens { get; set; }
-        DbSet<Item> Itens { get; set; }
+        public DbSet<Login> Login { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<PedidoItem> PedidosItens { get; set; }
+        public DbSet<Item> Itens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -73,11 +73,11 @@ namespace ECommerce.Data
                     .IsRequired()
                     .HasMaxLength(10);
 
-                entity.Property(u => u.CPF)
+                entity.Property(u => u.Cpf)
                     .IsRequired()
                     .HasMaxLength(11);
 
-                entity.HasIndex(u => u.CPF)
+                entity.HasIndex(u => u.Cpf)
                     .IsUnique();
             });
 

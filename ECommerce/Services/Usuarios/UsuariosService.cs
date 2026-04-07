@@ -61,7 +61,10 @@ namespace ECommerce.Services.Usuarios
         {
             var usuario = await _repository.ObterUsuarioPorId(id);
             if (usuario == null)
+            {
+                Console.WriteLine("Lançando UsuarioNotFound");
                 throw new UsuarioNotFound();
+            }
             return usuario;
         }
 

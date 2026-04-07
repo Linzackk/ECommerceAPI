@@ -5,6 +5,7 @@ using ECommerce.Services.Usuarios;
 using Microsoft.EntityFrameworkCore;
 using System;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,6 +17,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUsuariosRepository, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
+
+DotNetEnv.Env.Load();
 
 var DbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION");
 

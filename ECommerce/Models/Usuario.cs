@@ -14,7 +14,7 @@ namespace ECommerce.Models
         public string Cidade { get; private set; }
         public string Numero { get; private set; }
         public string Cep { get; private set; }
-        public string CPF { get; private set; }
+        public string Cpf { get; private set; }
         public Login Login { get; private set; }
         public List<Pedido> Pedidos { get; private set; } = new();
 
@@ -27,7 +27,11 @@ namespace ECommerce.Models
                 throw new ParametroInvalidoException("Telefone não pode ser nulo ou vazio.");
 
             var telefoneNormalizado = NormalizarTelefone(telefone);
-            if (telefoneNormalizado.Length != 11 || !(int.TryParse(telefoneNormalizado, out _)))
+            Console.WriteLine(telefoneNormalizado);
+            Console.WriteLine(telefoneNormalizado.Length);
+            Console.WriteLine(!long.TryParse(telefoneNormalizado, out long teste));
+            Console.WriteLine(teste);
+            if (telefoneNormalizado.Length != 11 || !(long.TryParse(telefoneNormalizado, out _)))
                 throw new ParametroInvalidoException("Número de Telefone inválido.");
 
             if (string.IsNullOrEmpty(rua))
@@ -56,7 +60,7 @@ namespace ECommerce.Models
             Cidade = cidade;
             Numero = numero;
             Cep = cepNormalizado;
-            CPF = cpf;
+            Cpf = cpf;
         }
 
         public void AtualizarNome(string novoNome)
@@ -70,7 +74,7 @@ namespace ECommerce.Models
         public void AtualizarTelefone(string novoTelefone)
         {
             var telefoneNormalizado = NormalizarTelefone(novoTelefone);
-            if (telefoneNormalizado.Length != 11 || !(int.TryParse(telefoneNormalizado, out _)))
+            if (telefoneNormalizado.Length != 11 || !(long.TryParse(telefoneNormalizado, out _)))
                 throw new ParametroInvalidoException("Número de Telefone inválido.");
 
             Telefone = novoTelefone;

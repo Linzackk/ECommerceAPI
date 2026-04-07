@@ -51,11 +51,11 @@ namespace ECommerce.Models
 
             Id = Guid.NewGuid();
             Nome = nome;
-            Telefone = telefone;
+            Telefone = telefoneNormalizado;
             Rua = rua;
             Cidade = cidade;
             Numero = numero;
-            Cep = cep;
+            Cep = cepNormalizado;
             CPF = cpf;
         }
 
@@ -70,7 +70,7 @@ namespace ECommerce.Models
         public void AtualizarTelefone(string novoTelefone)
         {
             var telefoneNormalizado = NormalizarTelefone(novoTelefone);
-            if (telefoneNormalizado.Length != 11 || !(int.TryParse(novoTelefone, out _)))
+            if (telefoneNormalizado.Length != 11 || !(int.TryParse(telefoneNormalizado, out _)))
                 throw new ParametroInvalidoException("Número de Telefone inválido.");
 
             Telefone = novoTelefone;
@@ -78,10 +78,10 @@ namespace ECommerce.Models
 
         private string NormalizarTelefone(string telefone)
         {
-            telefone = telefone.Replace('(', '\0');
-            telefone = telefone.Replace(')', '\0');
-            telefone = telefone.Replace('-', '\0');
-            telefone = telefone.Replace(' ', '\0');
+            telefone = telefone.Replace("(", "");
+            telefone = telefone.Replace(")", "");
+            telefone = telefone.Replace("-", "");
+            telefone = telefone.Replace(" ", "");
             return telefone;
         }
 
@@ -123,8 +123,8 @@ namespace ECommerce.Models
 
         public string NormalizarCep(string cep)
         {
-            cep = cep.Replace(' ', '\0');
-            cep = cep.Replace('-', '\0');
+            cep = cep.Replace(" ", "");
+            cep = cep.Replace("-", "");
             return cep;
         }
     }

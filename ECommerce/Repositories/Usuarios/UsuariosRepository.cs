@@ -1,5 +1,6 @@
 ﻿using ECommerce.Data;
 using ECommerce.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Repositories.Usuarios
 {
@@ -20,7 +21,7 @@ namespace ECommerce.Repositories.Usuarios
 
         public async Task<Usuario?> ObterUsuarioPorId(Guid usuarioId)
         {
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(user => user.Id == usuarioId);
             return usuario;
         }
 

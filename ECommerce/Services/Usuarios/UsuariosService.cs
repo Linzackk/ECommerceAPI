@@ -39,6 +39,7 @@ namespace ECommerce.Services.Usuarios
         private UsuarioResponseDTO CriarResponseDTO(Usuario usuario)
         {
             var response = new UsuarioResponseDTO();
+            response.Id = usuario.Id;
             response.Nome = usuario.Nome;
             response.Telefone = usuario.Telefone;
             response.Rua = usuario.Rua;

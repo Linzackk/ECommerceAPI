@@ -1,4 +1,7 @@
 using ECommerce.Data;
+using ECommerce.Middlewares;
+using ECommerce.Repositories.Usuarios;
+using ECommerce.Services.Usuarios;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -11,12 +14,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IUsuariosRepository, UsuariosRepository>();
+builder.Services.AddScoped<IUsuariosService, UsuariosService>();
+
 var DbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(DbConnection));
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

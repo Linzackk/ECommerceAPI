@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ECommerce.Migrations
 {
     /// <inheritdoc />
-    public partial class CriacaoDb : Migration
+    public partial class CriacaoBancoDados : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace ECommerce.Migrations
                 name: "Itens",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Nome = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Estoque = table.Column<int>(type: "int", nullable: false),
@@ -31,14 +31,14 @@ namespace ECommerce.Migrations
                 name: "Usuarios",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Telefone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Rua = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Cidade = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Numero = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Cep = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    CPF = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false)
+                    Cpf = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,10 +49,10 @@ namespace ECommerce.Migrations
                 name: "Login",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IdUsuario = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    IdUsuario = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -69,8 +69,8 @@ namespace ECommerce.Migrations
                 name: "Pedidos",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IdUsuario = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdUsuario = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Finalizado = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -89,8 +89,8 @@ namespace ECommerce.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IdPedido = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IdItem = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IdPedido = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdItem = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantidade = table.Column<int>(type: "int", nullable: false),
                     ValorUnitario = table.Column<decimal>(type: "decimal(10,2)", nullable: false)
                 },
@@ -139,9 +139,9 @@ namespace ECommerce.Migrations
                 column: "IdPedido");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_CPF",
+                name: "IX_Usuarios_Cpf",
                 table: "Usuarios",
-                column: "CPF",
+                column: "Cpf",
                 unique: true);
         }
 

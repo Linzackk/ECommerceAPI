@@ -73,11 +73,11 @@ namespace ECommerce.Data
                     .IsRequired()
                     .HasMaxLength(10);
 
-                entity.Property(u => u.CPF)
+                entity.Property(u => u.Cpf)
                     .IsRequired()
                     .HasMaxLength(11);
 
-                entity.HasIndex(u => u.CPF)
+                entity.HasIndex(u => u.Cpf)
                     .IsUnique();
             });
 

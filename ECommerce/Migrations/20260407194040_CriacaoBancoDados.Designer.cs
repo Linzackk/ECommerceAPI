@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260406181105_CriacaoDb")]
-    partial class CriacaoDb
+    [Migration("20260407194040_CriacaoBancoDados")]
+    partial class CriacaoBancoDados
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,9 @@ namespace ECommerce.Migrations
 
             modelBuilder.Entity("ECommerce.Models.Item", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DataCriacao")
                         .ValueGeneratedOnAdd()
@@ -57,17 +58,17 @@ namespace ECommerce.Migrations
 
             modelBuilder.Entity("ECommerce.Models.Login", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("IdUsuario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("IdUsuario")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -86,15 +87,15 @@ namespace ECommerce.Migrations
 
             modelBuilder.Entity("ECommerce.Models.Pedido", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Finalizado")
                         .HasColumnType("bit");
 
-                    b.Property<string>("IdUsuario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("IdUsuario")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -108,13 +109,11 @@ namespace ECommerce.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("IdItem")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("IdItem")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("IdPedido")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("IdPedido")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantidade")
                         .HasColumnType("int");
@@ -133,13 +132,9 @@ namespace ECommerce.Migrations
 
             modelBuilder.Entity("ECommerce.Models.Usuario", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CPF")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Cep")
                         .IsRequired()
@@ -150,6 +145,11 @@ namespace ECommerce.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -173,7 +173,7 @@ namespace ECommerce.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CPF")
+                    b.HasIndex("Cpf")
                         .IsUnique();
 
                     b.ToTable("Usuarios");

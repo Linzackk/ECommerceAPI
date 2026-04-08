@@ -137,5 +137,49 @@ namespace ECommerce.Tests.Usuarios
 
             mock.Verify(x => x.RemoverUsuario(usuario), Times.Once);
         }
+
+        [Fact]
+        public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarTelefone_TelefoneInvalido()
+        {
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var id = Guid.NewGuid();
+
+            var mock = new Mock<IUsuariosRepository>();
+            mock.Setup(x => x.ObterUsuarioPorId(id))
+               .ReturnsAsync(usuario);
+
+            var service = new UsuariosService(mock.Object);
+
+            string novoTelefone = "123";
+
+            UsuarioUpdateDTO usuarioUpdate = new UsuarioUpdateDTO()
+            {
+                Telefone = novoTelefone
+            };
+
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarUsuario(id, usuarioUpdate));
+        }
+
+        [Fact]
+        public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarCep_CepInvalido()
+        {
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var id = Guid.NewGuid();
+
+            var mock = new Mock<IUsuariosRepository>();
+            mock.Setup(x => x.ObterUsuarioPorId(id))
+               .ReturnsAsync(usuario);
+
+            var service = new UsuariosService(mock.Object);
+
+            string novoCep = "123";
+
+            UsuarioUpdateDTO usuarioUpdate = new UsuarioUpdateDTO()
+            {
+                Cep = novoCep
+            };
+
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarUsuario(id, usuarioUpdate));
+        }
     }
 }

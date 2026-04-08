@@ -117,6 +117,25 @@ namespace ECommerce.Tests.Usuarios
 
             Assert.Equal(nomeAtualizado, usuario.Nome);
             Assert.Equal(novoTelefone, usuario.Telefone);
+
+            mock.Verify(x => x.AtualizarUsuario(usuario), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeveRemoverUsuario_UsuarioDeveLancarExcecao_QuandoBuscado()
+        {
+            var id = Guid.NewGuid();
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+
+            var mock = new Mock<IUsuariosRepository>();
+            mock.Setup(x => x.ObterUsuarioPorId(id))
+               .ReturnsAsync(usuario);
+
+            var service = new UsuariosService(mock.Object);
+
+            await service.RemoverUsuario(id);
+
+            mock.Verify(x => x.RemoverUsuario(usuario), Times.Once);
         }
     }
 }

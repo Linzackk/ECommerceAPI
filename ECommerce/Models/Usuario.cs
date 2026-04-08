@@ -27,10 +27,6 @@ namespace ECommerce.Models
                 throw new ParametroInvalidoException("Telefone não pode ser nulo ou vazio.");
 
             var telefoneNormalizado = NormalizarTelefone(telefone);
-            Console.WriteLine(telefoneNormalizado);
-            Console.WriteLine(telefoneNormalizado.Length);
-            Console.WriteLine(!long.TryParse(telefoneNormalizado, out long teste));
-            Console.WriteLine(teste);
             if (telefoneNormalizado.Length != 11 || !(long.TryParse(telefoneNormalizado, out _)))
                 throw new ParametroInvalidoException("Número de Telefone inválido.");
 

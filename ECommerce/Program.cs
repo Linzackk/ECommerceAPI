@@ -20,10 +20,19 @@ builder.Services.AddScoped<IUsuariosService, UsuariosService>();
 
 DotNetEnv.Env.Load();
 
-var DbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION");
+if (builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("TestDb"));
+}
+else
+{
+    var DbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(DbConnection));
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(DbConnection));
+
+}
 
 var app = builder.Build();
 
@@ -43,3 +52,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

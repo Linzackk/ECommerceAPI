@@ -109,5 +109,77 @@ namespace ECommerce.Tests.Usuarios
 
             Assert.Equal(usuarioCriado.Id, usuarioProcura.Id);
         }
+
+        [Fact]
+        public async Task Deve_AtualizarUsuarioExistenteComInformacoesValidas_Retorno204()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var response = await _client.PostAsJsonAsync(_url, usuario);
+            response.EnsureSuccessStatusCode();
+
+            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioCriado);
+
+            var infoUpdate = new UsuarioUpdateDTO()
+            {
+                Nome = "Novo Nome Teste",
+                NumeroCasa = "300"
+            };
+
+            var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
+            responseUpdate.EnsureSuccessStatusCode();
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarUsuarioExistente_VerificarInformacoesAtualizadas()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var response = await _client.PostAsJsonAsync(_url, usuario);
+            response.EnsureSuccessStatusCode();
+
+            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioCriado);
+
+            var infoUpdate = new UsuarioUpdateDTO()
+            {
+                Nome = "Novo Nome Teste",
+                NumeroCasa = "300"
+            };
+
+            var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
+            responseUpdate.EnsureSuccessStatusCode();
+
+            var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
+            response.EnsureSuccessStatusCode();
+
+            var usuarioAtualizado = await responseProcura.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioCriado);
+            Assert.NotNull(usuarioAtualizado);
+            Assert.Equal(infoUpdate.Nome, usuarioAtualizado.Nome);
+            Assert.Equal(infoUpdate.NumeroCasa, usuarioAtualizado.NumeroCasa);
+        }
+        [Fact]
+        public async Task Deve_AtualizarUsuarioExistenteComInformacoesInvalidas_Retorno400()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var response = await _client.PostAsJsonAsync(_url, usuario);
+            response.EnsureSuccessStatusCode();
+
+            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioCriado);
+
+            var infoUpdate = new UsuarioUpdateDTO()
+            {
+                Telefone = "Telefone2000",
+                NumeroCasa = "300"
+            };
+
+            var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
+            Assert.NotNull(responseUpdate);
+            Assert.Equal(HttpStatusCode.BadRequest, responseUpdate.StatusCode);
+        }
     }   
 }

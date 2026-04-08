@@ -160,6 +160,7 @@ namespace ECommerce.Tests.Usuarios
             Assert.Equal(infoUpdate.Nome, usuarioAtualizado.Nome);
             Assert.Equal(infoUpdate.NumeroCasa, usuarioAtualizado.NumeroCasa);
         }
+
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesInvalidas_Retorno400()
         {
@@ -180,6 +181,32 @@ namespace ECommerce.Tests.Usuarios
             var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
             Assert.NotNull(responseUpdate);
             Assert.Equal(HttpStatusCode.BadRequest, responseUpdate.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_DeletarUsuarioExistente_Retorno204()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var response = await _client.PostAsJsonAsync(_url, usuario);
+            response.EnsureSuccessStatusCode();
+
+            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioCriado);
+
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{usuarioCriado.Id}");
+            Assert.NotNull(deleteResponse);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_DeletarUsuarioInexistente_Retorno204()
+        {
+            var id = Guid.NewGuid().ToString();
+            var response = await _client.DeleteAsync($"{_url}/{id}");
+
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }   
 }

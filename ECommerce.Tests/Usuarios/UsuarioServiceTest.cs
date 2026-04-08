@@ -1,4 +1,6 @@
-﻿using ECommerce.Models;
+﻿using ECommerce.DTOs.Usuarios;
+using ECommerce.Exceptions;
+using ECommerce.Models;
 using ECommerce.Repositories.Usuarios;
 using ECommerce.Services.Usuarios;
 using Moq;
@@ -8,7 +10,7 @@ namespace ECommerce.Tests.Usuarios
     public class UsuarioServiceTest
     {
         [Fact]
-        public async void BuscarUsuario_DeveRetornarUsuario()
+        public async Task BuscarUsuario_DeveRetornarUsuario()
         {
             var mock = new Mock<IUsuariosRepository>();
 
@@ -34,6 +36,19 @@ namespace ECommerce.Tests.Usuarios
             Assert.Equal(cidade, resultado.Cidade);
             Assert.Equal(numero, resultado.NumeroCasa);
             Assert.Equal(cep, resultado.Cep);
+        }
+
+        [Fact]
+        public async Task ProcurarUsuario_DeveLancarErro_QuandoUsuarioNaoExistir()
+        {
+            var mock = new Mock<IUsuariosRepository>();
+
+            mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
+                .ReturnsAsync((Usuario?)null);
+
+            var service = new UsuariosService(mock.Object);
+
+            await Assert.ThrowsAsync<UsuarioNotFound>(() => service.ObterUsuarioPorId(It.IsAny<Guid>()));
         }
     }
 }

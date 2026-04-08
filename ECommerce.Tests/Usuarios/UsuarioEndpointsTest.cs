@@ -21,17 +21,7 @@ namespace ECommerce.Tests.Usuarios
         {
             _client = factory.CreateClient();
         }
-
-        [Fact]
-        public async Task Deve_ProcurarUsuarioInexistente_Retornar404()
-        {
-            var id = Guid.NewGuid().ToString();
-            var response = await _client.GetAsync($"{_url}/{id}");
-            Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        private UsuarioCreateDTO CriarNovoUsuarioCreateDTO()
+        private UsuarioCreateDTO CriarUsuarioValido()
         {
             return new UsuarioCreateDTO()
             {
@@ -43,13 +33,27 @@ namespace ECommerce.Tests.Usuarios
                 Cidade = "SP",
                 Rua = "Rua do Teste",
                 NumeroCasa = "400"
-    };
+            };
+        }
+        private UsuarioCreateDTO CriarUsuarioInvalido()
+        {
+            return new UsuarioCreateDTO()
+            {
+                Nome = "Nome Teste",
+                Email = "email@email.com",
+                Cpf = "12121212121",
+                Telefone = "116666",
+                Cep = "777",
+                Cidade = "SP",
+                Rua = "Rua do Teste",
+                NumeroCasa = "400"
+            };
         }
 
         [Fact]
         public async Task Deve_CriarNovoUsuario_Retorno201RespostaValida()
         {
-            var usuario = CriarNovoUsuarioCreateDTO();
+            var usuario = CriarUsuarioValido();
 
             var postResponse = await _client.PostAsJsonAsync(_url, usuario);
             postResponse.EnsureSuccessStatusCode();
@@ -65,6 +69,45 @@ namespace ECommerce.Tests.Usuarios
             Assert.Equal(usuario.Cidade, usuarioCriado.Cidade);
             Assert.Equal(usuario.Rua, usuarioCriado.Rua);
             Assert.Equal(usuario.NumeroCasa, usuarioCriado.NumeroCasa);
+        }
+
+        [Fact]
+        public async Task Deve_CriarUsuarioInvalido_Retorno400()
+        {
+            var usuario = CriarUsuarioInvalido();
+
+            var postResponse = await _client.PostAsJsonAsync(_url, usuario);
+
+            Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_ProcurarUsuarioInexistente_Retornar404()
+        {
+            var id = Guid.NewGuid().ToString();
+            var response = await _client.GetAsync($"{_url}/{id}");
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_ProcurarUsuarioExistente_Retorno200()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var response = await _client.PostAsJsonAsync(_url, usuario);
+            response.EnsureSuccessStatusCode();
+
+            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioCriado);
+
+            var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
+            Assert.Equal(HttpStatusCode.OK, responseProcura.StatusCode);
+
+            var usuarioProcura = await responseProcura.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            Assert.NotNull(usuarioProcura);
+
+            Assert.Equal(usuarioCriado.Id, usuarioProcura.Id);
         }
     }   
 }

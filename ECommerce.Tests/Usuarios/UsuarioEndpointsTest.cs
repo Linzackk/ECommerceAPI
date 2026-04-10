@@ -32,7 +32,8 @@ namespace ECommerce.Tests.Usuarios
                 Cep = "00000000",
                 Cidade = "SP",
                 Rua = "Rua do Teste",
-                NumeroCasa = "400"
+                NumeroCasa = "400",
+                Senha = "senhaTeste"
             };
         }
         private UsuarioCreateDTO CriarUsuarioInvalido()

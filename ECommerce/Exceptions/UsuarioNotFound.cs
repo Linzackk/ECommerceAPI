@@ -1,6 +1,6 @@
 ﻿namespace ECommerce.Exceptions
 {
-    public class UsuarioNotFound : Exception
+    public class UsuarioNotFound : NotFoundException
     {
         public UsuarioNotFound()
             : base("Usuário não encontrado.") { }

@@ -42,8 +42,13 @@ namespace ECommerce.Middlewares
                 statusCode = StatusCodes.Status400BadRequest;
                 message = ex.Message;
             }
+            else if (ex is LoginCredenciaisInvalidasException)
+            {
+                statusCode = StatusCodes.Status400BadRequest;
+                message = ex.Message;
+            }
 
-            context.Response.StatusCode = statusCode;
+                context.Response.StatusCode = statusCode;
             var result = System.Text.Json.JsonSerializer.Serialize(new
             {
                 error = message,

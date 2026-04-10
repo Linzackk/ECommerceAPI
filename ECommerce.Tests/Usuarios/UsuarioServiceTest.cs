@@ -72,10 +72,6 @@ namespace ECommerce.Tests.Usuarios
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
 
-            mockLogin
-                .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
-                .ReturnsAsync(new Login(emailTeste, senhaHash, Guid.NewGuid()));
-
             mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
                 .ReturnsAsync((Usuario?)null);
 
@@ -89,10 +85,6 @@ namespace ECommerce.Tests.Usuarios
         {
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
-
-            mockLogin
-                .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
-                .ReturnsAsync(new Login(emailTeste, senhaHash, Guid.NewGuid()));
 
             var service = new UsuariosService(mock.Object, mockLogin.Object);
 
@@ -119,10 +111,6 @@ namespace ECommerce.Tests.Usuarios
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
-
-            mockLogin
-               .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
-               .ReturnsAsync(new Login(emailTeste, senhaHash, Guid.NewGuid()));
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
@@ -174,10 +162,6 @@ namespace ECommerce.Tests.Usuarios
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
 
-            mockLogin
-               .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
-               .ReturnsAsync(new Login(emailTeste, senhaHash, id));
-
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
@@ -201,10 +185,6 @@ namespace ECommerce.Tests.Usuarios
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
-
-            mockLogin
-               .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
-               .ReturnsAsync(new Login(emailTeste, senhaHash, id));
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);

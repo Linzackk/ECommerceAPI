@@ -9,5 +9,6 @@
         public string Cidade { get; set; }
         public string NumeroCasa { get; set; }
         public string Cep { get; set; }
+        public string Email { get; set; }
     }
 }

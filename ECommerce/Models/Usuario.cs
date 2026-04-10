@@ -127,5 +127,10 @@ namespace ECommerce.Models
             cep = cep.Replace("-", "");
             return cep;
         }
+
+        public void DefinirLogin(Login login)
+        {
+            Login = login;
+        }
     }
 }

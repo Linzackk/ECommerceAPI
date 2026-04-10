@@ -39,10 +39,11 @@ namespace ECommerce.Services.Logins
             return new Login(novoLogin.Email, senhaHash, novoLogin.IdUsuario);
         }
 
-        public async Task CriarLogin(LoginCreateDTO novoLogin)
+        public async Task<Login> CriarLogin(LoginCreateDTO novoLogin)
         {
             var login = CriarLoginPorDTO(novoLogin);
             await _repository.CriarLogin(login);
+            return login;
         }
 
         public async Task DeletarLogin(string email)

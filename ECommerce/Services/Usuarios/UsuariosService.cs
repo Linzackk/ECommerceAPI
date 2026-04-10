@@ -24,7 +24,8 @@ namespace ECommerce.Services.Usuarios
             var novoLogin = CriarLoginDTO(novoUsuario.Email, novoUsuario.Senha, usuario.Id);
 
             await _repository.CriarUsuario(usuario);
-            await _loginService.CriarLogin(novoLogin);
+            var login = await _loginService.CriarLogin(novoLogin);
+            usuario.DefinirLogin(login);
 
             return CriarResponseDTO(usuario);
         }

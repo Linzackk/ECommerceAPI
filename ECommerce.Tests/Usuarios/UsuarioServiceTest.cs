@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Usuarios;
+﻿using ECommerce.DTOs.Login;
+using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Usuarios;
@@ -21,6 +22,7 @@ namespace ECommerce.Tests.Usuarios
         static string cepTeste = "00000000";
         static string cpfTeste = "00000000000";
         static string emailTeste = "teste@teste.com";
+        static string senhaTeste = "senhaTeste";
         static string senhaHash = BCrypt.Net.BCrypt.HashPassword("senhaTeste");
         private UsuarioCreateDTO CriarUsuarioCreateDTOTeste()
         {
@@ -34,6 +36,7 @@ namespace ECommerce.Tests.Usuarios
             usuario.Cep = cepTeste;
             usuario.Cpf = cpfTeste;
             usuario.Email = emailTeste;
+            usuario.Senha = senhaTeste;
 
             return usuario;
         }
@@ -41,20 +44,19 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task BuscarUsuario_DeveRetornarUsuario()
         {
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var id = Guid.NewGuid();
+            usuario.DefinirLogin(new Login(emailTeste, senhaHash, id));
+
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
 
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
-            var loginFake = new Login(emailTeste, senhaHash, usuario.Id);
-
-            mockLogin.Setup(x => x.)
-
-            mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
-                .ReturnsAsync();
+            mock.Setup(x => x.ObterUsuarioPorId(id))
+                .ReturnsAsync(usuario);
 
             var service = new UsuariosService(mock.Object, mockLogin.Object);
 
-            var resultado = await service.ObterUsuarioPorId(It.IsAny<Guid>());
+            var resultado = await service.ObterUsuarioPorId(id);
 
             Assert.NotNull(resultado);
             Assert.Equal(nomeTeste, resultado.Nome);
@@ -71,6 +73,10 @@ namespace ECommerce.Tests.Usuarios
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
 
+            mockLogin
+                .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
+                .ReturnsAsync(new Login(emailTeste, senhaHash, Guid.NewGuid()));
+
             mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
                 .ReturnsAsync((Usuario?)null);
 
@@ -84,6 +90,10 @@ namespace ECommerce.Tests.Usuarios
         {
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+
+            mockLogin
+                .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
+                .ReturnsAsync(new Login(emailTeste, senhaHash, Guid.NewGuid()));
 
             var service = new UsuariosService(mock.Object, mockLogin.Object);
 
@@ -110,6 +120,10 @@ namespace ECommerce.Tests.Usuarios
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+
+            mockLogin
+               .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
+               .ReturnsAsync(new Login(emailTeste, senhaHash, Guid.NewGuid()));
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
@@ -138,6 +152,7 @@ namespace ECommerce.Tests.Usuarios
         {
             var id = Guid.NewGuid();
             var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            usuario.DefinirLogin(new Login(emailTeste, senhaHash, id));
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
@@ -160,6 +175,10 @@ namespace ECommerce.Tests.Usuarios
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+
+            mockLogin
+               .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
+               .ReturnsAsync(new Login(emailTeste, senhaHash, id));
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
@@ -184,6 +203,10 @@ namespace ECommerce.Tests.Usuarios
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+
+            mockLogin
+               .Setup(x => x.CriarLogin(It.IsAny<LoginCreateDTO>()))
+               .ReturnsAsync(new Login(emailTeste, senhaHash, id));
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);

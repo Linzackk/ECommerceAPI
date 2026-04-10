@@ -1,6 +1,8 @@
 using ECommerce.Data;
 using ECommerce.Middlewares;
+using ECommerce.Repositories.Logins;
 using ECommerce.Repositories.Usuarios;
+using ECommerce.Services.Logins;
 using ECommerce.Services.Usuarios;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +19,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUsuariosRepository, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
+
+builder.Services.AddScoped<ILoginRepository, LoginRepository>();
+builder.Services.AddScoped<ILoginService, LoginService>();
 
 DotNetEnv.Env.Load();
 

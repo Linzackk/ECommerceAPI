@@ -1,4 +1,5 @@
 ﻿using ECommerce.DTOs.Login;
+using ECommerce.Models;
 using ECommerce.Services.Logins;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,12 @@ namespace ECommerce.Controllers
         {
             var token = _service.FazerLogin(credenciais);
             return Ok(token);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObterTodos()
+        {
+            return Ok(await _service.ObterTodos());
         }
     }
 }

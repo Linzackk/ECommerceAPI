@@ -15,13 +15,16 @@ namespace ECommerce.Repositories.Usuarios
 
         public async Task CriarUsuario(Usuario novoUsuario)
         {
+            Console.WriteLine("CRIANDO NOVO USUARIO");
+            Console.WriteLine($"{novoUsuario.Id} - {novoUsuario.Email}");
             await _context.Usuarios.AddAsync(novoUsuario);
             await _context.SaveChangesAsync();
         }
 
         public async Task<Usuario?> ObterUsuarioPorId(Guid usuarioId)
         {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(user => user.Id == usuarioId);
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(user => user.Id == usuarioId);
             return usuario;
         }
 
@@ -34,6 +37,12 @@ namespace ECommerce.Repositories.Usuarios
         public async Task AtualizarUsuario(Usuario usuarioAtualizado)
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IReadOnlyCollection<Usuario>> ObterTodos()
+        {
+            var usuarios = await _context.Usuarios.ToListAsync();
+            return usuarios;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ECommerce.DTOs.Login;
+using ECommerce.Models;
 
 namespace ECommerce.Services.Logins
 {
@@ -6,6 +7,7 @@ namespace ECommerce.Services.Logins
     {
         Task<string> FazerLogin(LoginEntrarDTO credenciais);
         Task CriarLogin(LoginCreateDTO novoLogin);
-        Task DeletarLogin(string email);
+        Task DeletarLogin(Guid usuarioId);
+        Task<IReadOnlyCollection<Login>> ObterTodos();
     }
 }

@@ -1,7 +1,9 @@
-﻿using ECommerce.DTOs.Usuarios;
+﻿using ECommerce.DTOs.Login;
+using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Usuarios;
+using ECommerce.Services.Logins;
 using ECommerce.Services.Usuarios;
 using Moq;
 using System.Runtime.ConstrainedExecution;
@@ -20,6 +22,8 @@ namespace ECommerce.Tests.Usuarios
         static string cepTeste = "00000000";
         static string cpfTeste = "00000000000";
         static string emailTeste = "teste@teste.com";
+        static string senhaTeste = "senhaTeste";
+        static string senhaHash = BCrypt.Net.BCrypt.HashPassword("senhaTeste");
         private UsuarioCreateDTO CriarUsuarioCreateDTOTeste()
         {
             UsuarioCreateDTO usuario = new UsuarioCreateDTO();
@@ -32,6 +36,7 @@ namespace ECommerce.Tests.Usuarios
             usuario.Cep = cepTeste;
             usuario.Cpf = cpfTeste;
             usuario.Email = emailTeste;
+            usuario.Senha = senhaTeste;
 
             return usuario;
         }
@@ -39,14 +44,18 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task BuscarUsuario_DeveRetornarUsuario()
         {
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var id = Guid.NewGuid();
+
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
 
-            mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
-                .ReturnsAsync(new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste));
+            mock.Setup(x => x.ObterUsuarioPorId(id))
+                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
-            var resultado = await service.ObterUsuarioPorId(It.IsAny<Guid>());
+            var resultado = await service.ObterUsuarioPorId(id);
 
             Assert.NotNull(resultado);
             Assert.Equal(nomeTeste, resultado.Nome);
@@ -61,11 +70,12 @@ namespace ECommerce.Tests.Usuarios
         public async Task ProcurarUsuario_DeveLancarErro_QuandoUsuarioNaoExistir()
         {
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
 
             mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
                 .ReturnsAsync((Usuario?)null);
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
             await Assert.ThrowsAsync<UsuarioNotFound>(() => service.ObterUsuarioPorId(It.IsAny<Guid>()));
         }
@@ -74,8 +84,9 @@ namespace ECommerce.Tests.Usuarios
         public async Task DeveCriarUsuario_UsuarioCriadoComSucesso_RepositorioChamadoUmaVez()
         {
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
             var usuario = await service.CriarNovoUsuario(CriarUsuarioCreateDTOTeste());
 
@@ -95,14 +106,16 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveAtualizarUsuario_UsuarioAtualizadoComSucesso()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
 
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
+
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
             string nomeAtualizado = "Novo Nome";
             string novoTelefone = "99111111111";
@@ -125,13 +138,15 @@ namespace ECommerce.Tests.Usuarios
         public async Task DeveRemoverUsuario_UsuarioDeveLancarExcecao_QuandoBuscado()
         {
             var id = Guid.NewGuid();
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
 
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
+
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
             await service.RemoverUsuario(id);
 
@@ -141,14 +156,16 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarTelefone_TelefoneInvalido()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
 
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
+
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
             string novoTelefone = "123";
 
@@ -163,14 +180,16 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarCep_CepInvalido()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
 
             var mock = new Mock<IUsuariosRepository>();
+            var mockLogin = new Mock<ILoginService>();
+
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object);
 
             string novoCep = "123";
 

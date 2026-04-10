@@ -21,6 +21,12 @@ namespace ECommerce.Controllers
             return CreatedAtAction(nameof(ObterUsuarioPorId), new { Id = usuarioCriado.Id }, usuarioCriado);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObterTodos()
+        {
+            return Ok(await _service.ObterTodos());
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> ObterUsuarioPorId(Guid id)
         {

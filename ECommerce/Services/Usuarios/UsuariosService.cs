@@ -4,6 +4,7 @@ using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Usuarios;
 using ECommerce.Services.Logins;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Services.Usuarios
 {
@@ -21,11 +22,14 @@ namespace ECommerce.Services.Usuarios
         {
             Usuario usuario = CriarModelPorDTO(novoUsuario);
 
+            Console.WriteLine($"\nID DO USUARIO: {usuario.Id}\n");
+
             var novoLogin = CriarLoginDTO(novoUsuario.Email, novoUsuario.Senha, usuario.Id);
 
             await _repository.CriarUsuario(usuario);
-            var login = await _loginService.CriarLogin(novoLogin);
-            usuario.DefinirLogin(login);
+            await _loginService.CriarLogin(novoLogin);
+
+            Console.WriteLine($"\nID DO USUARIO: {usuario.Id}\n");
 
             return CriarResponseDTO(usuario);
         }
@@ -39,16 +43,20 @@ namespace ECommerce.Services.Usuarios
                 novoUsuario.Cidade,
                 novoUsuario.NumeroCasa,
                 novoUsuario.Cep,
-                novoUsuario.Cpf
+                novoUsuario.Cpf,
+                novoUsuario.Email
             );
         }
 
         private static LoginCreateDTO CriarLoginDTO(string email, string senha, Guid usuarioId)
         {
             var login = new LoginCreateDTO();
+
             login.Email = email;
             login.Senha = senha;
             login.IdUsuario = usuarioId;
+
+            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {login.Email}, {login.Senha}, {login.IdUsuario}");
 
             return login;
         }
@@ -63,7 +71,7 @@ namespace ECommerce.Services.Usuarios
             response.Cidade = usuario.Cidade;
             response.NumeroCasa = usuario.Numero;
             response.Cep = usuario.Cep;
-            response.Email = usuario.Login.Email;
+            response.Email = usuario.Email;
 
             return response;
         }
@@ -123,8 +131,13 @@ namespace ECommerce.Services.Usuarios
         public async Task RemoverUsuario(Guid usuarioId)
         {
             var usuario = await ObterUsuarioRepository(usuarioId);
-            await _loginService.DeletarLogin(usuario.Login.Email);
+            await _loginService.DeletarLogin(usuario.Id);
             await _repository.RemoverUsuario(usuario);
+        }
+
+        public async Task<IReadOnlyCollection<Usuario>> ObterTodos()
+        {
+            return await _repository.ObterTodos();
         }
     }
 }

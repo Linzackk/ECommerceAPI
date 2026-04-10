@@ -35,14 +35,6 @@ namespace ECommerce.Data
 
                 entity.Property(u => u.IdUsuario)
                     .IsRequired();
-
-                entity.HasOne(l => l.Usuario)
-                    .WithOne(u => u.Login)
-                    .HasForeignKey<Login>(l => l.IdUsuario)
-                    .IsRequired();
-
-                entity.HasIndex(l => l.IdUsuario)
-                    .IsUnique();
             });
 
             modelBuilder.Entity<Usuario>(entity =>

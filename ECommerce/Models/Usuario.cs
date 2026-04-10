@@ -1,5 +1,6 @@
 ﻿using ECommerce.Exceptions;
 using Microsoft.Data.SqlClient;
+using System.Net.Mail;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography;
 
@@ -15,10 +16,9 @@ namespace ECommerce.Models
         public string Numero { get; private set; }
         public string Cep { get; private set; }
         public string Cpf { get; private set; }
-        public Login Login { get; private set; }
+        public string Email { get; private set;  }
         public List<Pedido> Pedidos { get; private set; } = new();
-
-        public Usuario(string nome, string telefone, string rua, string cidade, string numero, string cep, string cpf)
+        public Usuario(string nome, string telefone, string rua, string cidade, string numero, string cep, string cpf, string email)
         {
             if (string.IsNullOrEmpty(nome))
                 throw new ParametroInvalidoException("Nome não pode ser nulo ou vazio.");
@@ -49,6 +49,13 @@ namespace ECommerce.Models
             if (string.IsNullOrEmpty(cpf))
                 throw new ParametroInvalidoException("CPF não pode ser nulo ou vazio.");
 
+            if (string.IsNullOrEmpty(email))
+                throw new ParametroInvalidoException("Email não pode estar vazio.");
+
+            if (!MailAddress.TryCreate(email, out _))
+                throw new ParametroInvalidoException("Email inválido.");
+
+
             Id = Guid.NewGuid();
             Nome = nome;
             Telefone = telefoneNormalizado;
@@ -57,6 +64,7 @@ namespace ECommerce.Models
             Numero = numero;
             Cep = cepNormalizado;
             Cpf = cpf;
+            Email = email;
         }
 
         public void AtualizarNome(string novoNome)
@@ -126,11 +134,6 @@ namespace ECommerce.Models
             cep = cep.Replace(" ", "");
             cep = cep.Replace("-", "");
             return cep;
-        }
-
-        public void DefinirLogin(Login login)
-        {
-            Login = login;
         }
     }
 }

@@ -14,6 +14,11 @@ namespace ECommerce.Services.Logins
             _repository = repository;
         }
 
+        public async Task<IReadOnlyCollection<Login>> ObterTodos()
+        {
+            return await _repository.ObterTodos();
+        }
+
         public async Task<string> FazerLogin(LoginEntrarDTO credenciais)
         {
             var login = await ProcurarLoginPorEmail(credenciais.Email);
@@ -36,20 +41,26 @@ namespace ECommerce.Services.Logins
         private Login CriarLoginPorDTO(LoginCreateDTO novoLogin)
         {
             var senhaHash = BCrypt.Net.BCrypt.HashPassword(novoLogin.Senha);
+            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {novoLogin.Email}, {novoLogin.Senha}, {novoLogin.IdUsuario}");
             return new Login(novoLogin.Email, senhaHash, novoLogin.IdUsuario);
         }
 
-        public async Task<Login> CriarLogin(LoginCreateDTO novoLogin)
+        public async Task CriarLogin(LoginCreateDTO novoLogin)
         {
             var login = CriarLoginPorDTO(novoLogin);
+            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {login.Email}, {login.Senha}, {login.IdUsuario}");
             await _repository.CriarLogin(login);
-            return login;
         }
 
-        public async Task DeletarLogin(string email)
+        public async Task DeletarLogin(Guid usuarioId)
         {
-            var login = await ProcurarLoginPorEmail(email);
+            var login = await ProcurarLoginPorUsuarioId(usuarioId);
             await _repository.RemoverLogin(login);
+        }
+
+        public async Task<Login> ProcurarLoginPorUsuarioId(Guid usuarioId)
+        {
+            return await _repository.ProcurarLoginPorUsuarioId(usuarioId);
         }
     }
 }

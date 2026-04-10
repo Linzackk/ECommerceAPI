@@ -9,7 +9,6 @@ namespace ECommerce.Models
         public string Email { get; private set; }
         public string Senha { get; private set; }
         public Guid IdUsuario { get; private set; }
-        public Usuario Usuario { get; private set; }
 
         public Login(string email, string senha, Guid idUsuario)
         {
@@ -28,7 +27,7 @@ namespace ECommerce.Models
             Email = email;
             Senha = senha;
             Id = Guid.NewGuid();
-
+            IdUsuario = idUsuario;
         }
     }
 }

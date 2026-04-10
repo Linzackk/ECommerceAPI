@@ -44,9 +44,8 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task BuscarUsuario_DeveRetornarUsuario()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
-            usuario.DefinirLogin(new Login(emailTeste, senhaHash, id));
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
@@ -115,7 +114,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveAtualizarUsuario_UsuarioAtualizadoComSucesso()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
 
             var mock = new Mock<IUsuariosRepository>();
@@ -151,8 +150,7 @@ namespace ECommerce.Tests.Usuarios
         public async Task DeveRemoverUsuario_UsuarioDeveLancarExcecao_QuandoBuscado()
         {
             var id = Guid.NewGuid();
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
-            usuario.DefinirLogin(new Login(emailTeste, senhaHash, id));
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
@@ -170,7 +168,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarTelefone_TelefoneInvalido()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
 
             var mock = new Mock<IUsuariosRepository>();
@@ -198,7 +196,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarCep_CepInvalido()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste);
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
 
             var mock = new Mock<IUsuariosRepository>();

@@ -8,5 +8,6 @@ namespace ECommerce.Repositories.Usuarios
         Task<Usuario?> ObterUsuarioPorId(Guid usuarioId);
         Task AtualizarUsuario(Usuario usuarioAtualizado);
         Task RemoverUsuario(Usuario usuario);
+        Task<IReadOnlyCollection<Usuario>> ObterTodos();
     }
 }

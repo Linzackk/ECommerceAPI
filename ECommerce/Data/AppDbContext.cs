@@ -30,7 +30,7 @@ namespace ECommerce.Data
                 entity.HasIndex(u => u.Email)
                     .IsUnique();
 
-                entity.Property(u => u.Password)
+                entity.Property(u => u.Senha)
                     .IsRequired();
 
                 entity.Property(u => u.IdUsuario)

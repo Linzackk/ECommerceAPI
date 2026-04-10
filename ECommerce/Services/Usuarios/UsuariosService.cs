@@ -1,24 +1,30 @@
-﻿using ECommerce.DTOs.Usuarios;
+﻿using ECommerce.DTOs.Login;
+using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Usuarios;
+using ECommerce.Services.Logins;
 
 namespace ECommerce.Services.Usuarios
 {
     public class UsuariosService : IUsuariosService
     {
         private readonly IUsuariosRepository _repository;
-        // adicionar service de login
-        public UsuariosService(IUsuariosRepository repository)
+        private readonly ILoginService _loginService;
+        public UsuariosService(IUsuariosRepository repository, ILoginService loginService)
         {
             _repository = repository;
+            _loginService = loginService;
         }
 
         public async Task<UsuarioResponseDTO> CriarNovoUsuario(UsuarioCreateDTO novoUsuario)
         {
             Usuario usuario = CriarModelPorDTO(novoUsuario);
 
+            var novoLogin = CriarLoginDTO(novoUsuario.Email, novoUsuario.Senha, usuario.Id);
+
             await _repository.CriarUsuario(usuario);
+            await _loginService.CriarLogin(novoLogin);
 
             return CriarResponseDTO(usuario);
         }
@@ -36,6 +42,16 @@ namespace ECommerce.Services.Usuarios
             );
         }
 
+        private static LoginCreateDTO CriarLoginDTO(string email, string senha, Guid usuarioId)
+        {
+            var login = new LoginCreateDTO();
+            login.Email = email;
+            login.Senha = senha;
+            login.IdUsuario = usuarioId;
+
+            return login;
+        }
+
         private UsuarioResponseDTO CriarResponseDTO(Usuario usuario)
         {
             var response = new UsuarioResponseDTO();
@@ -46,6 +62,7 @@ namespace ECommerce.Services.Usuarios
             response.Cidade = usuario.Cidade;
             response.NumeroCasa = usuario.Numero;
             response.Cep = usuario.Cep;
+            response.Email = usuario.Login.Email;
 
             return response;
         }
@@ -62,7 +79,6 @@ namespace ECommerce.Services.Usuarios
             var usuario = await _repository.ObterUsuarioPorId(id);
             if (usuario == null)
             {
-                Console.WriteLine("Lançando UsuarioNotFound");
                 throw new UsuarioNotFound();
             }
             return usuario;
@@ -106,6 +122,7 @@ namespace ECommerce.Services.Usuarios
         public async Task RemoverUsuario(Guid usuarioId)
         {
             var usuario = await ObterUsuarioRepository(usuarioId);
+            await _loginService.DeletarLogin(usuario.Login.Email);
             await _repository.RemoverUsuario(usuario);
         }
     }

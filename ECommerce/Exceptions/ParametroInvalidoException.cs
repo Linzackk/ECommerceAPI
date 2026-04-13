@@ -1,6 +1,6 @@
 ﻿namespace ECommerce.Exceptions
 {
-    public class ParametroInvalidoException : Exception
+    public class ParametroInvalidoException : BadRequestException
     {
         public ParametroInvalidoException(string mensagem)
             : base(mensagem) { }

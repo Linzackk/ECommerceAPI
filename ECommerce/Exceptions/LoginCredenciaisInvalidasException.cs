@@ -1,6 +1,6 @@
 ﻿namespace ECommerce.Exceptions
 {
-    public class LoginCredenciaisInvalidasException : Exception
+    public class LoginCredenciaisInvalidasException : BadRequestException
     {
         public LoginCredenciaisInvalidasException()
             : base("Credenciais Inválidas.") { }

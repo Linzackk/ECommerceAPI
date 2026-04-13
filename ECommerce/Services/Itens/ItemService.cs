@@ -60,8 +60,9 @@ namespace ECommerce.Services.Itens
 
         public async Task AtualizarItem(ItemUpdateDTO itemAtualizado, Guid itemId)
         {
-            var UpdateDTOVazio = new ItemUpdateDTO();
-            if (itemAtualizado.Equals(UpdateDTOVazio))
+            if (itemAtualizado.EstoqueNovo == null &&
+                itemAtualizado.Preco == null
+            )    
                 throw new ParametroInvalidoException("Nenhuma informação para atualizar foi inserida");
 
             var item = await ObterPorId(itemId);

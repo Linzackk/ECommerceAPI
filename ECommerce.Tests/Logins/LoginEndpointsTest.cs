@@ -72,9 +72,25 @@ namespace ECommerce.Tests.Logins
             var response = await loginPostResponse.Content.ReadAsStringAsync();
 
             Assert.NotNull(response);
-            Console.WriteLine(response);
             Assert.Equal("Login feito com sucesso.", response);
-            
+        }
+
+        [Fact]
+        public async Task Deve_CriarNovoLogin_EntrarComCredenciaisInvalidas_Retorno400()
+        {
+            var usuario = CriarUsuarioValido();
+            var loginEntrar = CriarLoginEntrarInvalido();
+
+            var postResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
+            postResponse.EnsureSuccessStatusCode();
+
+            var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);
+
+            Assert.Equal(HttpStatusCode.BadRequest, loginPostResponse.StatusCode);
+
+            var response = await loginPostResponse.Content.ReadAsStringAsync();
+
+            Assert.NotNull(response);
         }
     }
 }

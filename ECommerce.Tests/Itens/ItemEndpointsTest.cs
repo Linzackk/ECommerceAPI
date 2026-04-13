@@ -102,5 +102,52 @@ namespace ECommerce.Tests.Itens
             var getResponse = await _client.GetAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Deve_AtualizarItemCorretamente_Retorno204()
+        {
+            var item = CriarItemValido();
+
+            var postResponse = await _client.PostAsJsonAsync(_url, item);
+            postResponse.EnsureSuccessStatusCode();
+
+            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+
+            var atualizacao = new ItemUpdateDTO() { Preco = 9.85M };
+
+            var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
+            patchResponse.EnsureSuccessStatusCode();
+
+            Assert.Equal(HttpStatusCode.NoContent, patchResponse.StatusCode);
+
+            var getResponse = await _client.GetAsync($"{_url}/{itemCriado.Id}");
+            getResponse.EnsureSuccessStatusCode();
+
+            var itemResponse = await getResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+
+            Assert.NotNull(itemResponse);
+            Assert.Equal(item.Nome, itemResponse.Nome);
+            Assert.Equal(item.Descricao, itemResponse.Descricao);
+            Assert.Equal(item.Estoque, itemResponse.Estoque);
+            Assert.Equal(atualizacao.Preco, itemResponse.Preco);
+            Assert.NotEqual(Guid.Empty, itemResponse.Id);
+            Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarItem_LancarExcecaoComInformacoesVazias()
+        {
+            var item = CriarItemValido();
+
+            var postResponse = await _client.PostAsJsonAsync(_url, item);
+            postResponse.EnsureSuccessStatusCode();
+
+            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+
+            var atualizacao = new ItemUpdateDTO();
+
+            var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
+            Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
+        }
     }
 }

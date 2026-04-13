@@ -29,16 +29,16 @@ namespace ECommerce.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> AtualizarItem([FromBody] ItemUpdateDTO itemAtualizado, Guid itemId)
+        public async Task<IActionResult> AtualizarItem([FromBody] ItemUpdateDTO itemAtualizado, Guid id)
         {
-            await _service.AtualizarItem(itemAtualizado, itemId);
+            await _service.AtualizarItem(itemAtualizado, id);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoverItem(Guid itemId)
+        public async Task<IActionResult> RemoverItem(Guid id)
         {
-            await _service.RemoverItem(itemId);
+            await _service.RemoverItem(id);
             return NoContent();
         }
 

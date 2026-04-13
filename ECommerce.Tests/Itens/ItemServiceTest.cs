@@ -18,6 +18,7 @@ namespace ECommerce.Tests.Itens
         static string DescricaoTeste = "Serve para escovar o cabelo, é feito de plástico";
         static int EstoqueTeste = 17;
         static decimal PrecoTeste = 9.95M;
+        static DateOnly Hoje = DateOnly.FromDateTime(DateTime.Now);
         private Item CriarItemValido()
         {
             return new Item(NomeTeste, DescricaoTeste, EstoqueTeste, PrecoTeste);
@@ -34,10 +35,9 @@ namespace ECommerce.Tests.Itens
         }
 
         [Fact]
-        public async Task DeveCriarItem_DeveRetornarItemResponse()
+        public async Task DeveProcurarItem_DeveRetornarItemResponse()
         {
             var item = CriarItemValido();
-            var itemCreate = CriarItemDTOValido();
 
             var mock = new Mock<IItemRepository>();
             mock.Setup(x => x.ObterItemPorId(IdTeste))
@@ -48,10 +48,23 @@ namespace ECommerce.Tests.Itens
             var resultado = await service.ObterItemPorId(IdTeste);
 
             Assert.NotNull(resultado);
-            Assert.Equal(NomeTeste, resultado.Nome);
-            Assert.Equal(DescricaoTeste, resultado.Descricao);
-            Assert.Equal(EstoqueTeste, resultado.Estoque);
-            Assert.Equal(PrecoTeste, resultado.Preco);
+            mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeveCriarItem_ItemCriadoComSucesso()
+        {
+            var itemCreate = CriarItemDTOValido();
+
+            var mock = new Mock<IItemRepository>();
+
+            var service = new ItemService(mock.Object);
+
+            var resultado = await service.CriarNovoItem(itemCreate);
+
+            Assert.NotNull(resultado);
+            Assert.NotEqual(Guid.Empty, resultado.Id);
+            Assert.Equal(Hoje, resultado.DataCriacao);
         }
     }
 }

@@ -2,9 +2,7 @@
 {
     public class ItemUpdateDTO
     {
-        public string? Nome { get; set; }
-        public string? Descricao { get; set; }
-        public int? Estoque { get; set; }
+        public int? EstoqueNovo { get; set; }
         public decimal? Preco { get; set; }
     }
 }

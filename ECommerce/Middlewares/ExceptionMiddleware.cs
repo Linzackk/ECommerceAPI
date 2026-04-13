@@ -37,18 +37,13 @@ namespace ECommerce.Middlewares
                 statusCode = StatusCodes.Status404NotFound;
                 message = ex.Message;
             }
-            else if (ex is ParametroInvalidoException)
-            {
-                statusCode = StatusCodes.Status400BadRequest;
-                message = ex.Message;
-            }
-            else if (ex is LoginCredenciaisInvalidasException)
+            else if (ex is BadRequestException)
             {
                 statusCode = StatusCodes.Status400BadRequest;
                 message = ex.Message;
             }
 
-                context.Response.StatusCode = statusCode;
+            context.Response.StatusCode = statusCode;
 
             var result = System.Text.Json.JsonSerializer.Serialize(new
             {

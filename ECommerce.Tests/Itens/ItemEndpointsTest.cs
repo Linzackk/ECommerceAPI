@@ -61,5 +61,14 @@ namespace ECommerce.Tests.Itens
             Assert.NotEqual(Guid.Empty, itemCriado.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemCriado.DataCriacao);
         }
+
+        [Fact]
+        public async Task Deve_CriarNovoItem_Retorno400()
+        {
+            var item = CriarItemInvalido();
+            var postResponse = await _client.PostAsJsonAsync(_url, item);
+
+            Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+        }
     }
 }

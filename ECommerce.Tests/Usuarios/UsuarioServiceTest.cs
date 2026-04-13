@@ -23,7 +23,6 @@ namespace ECommerce.Tests.Usuarios
         static string cpfTeste = "00000000000";
         static string emailTeste = "teste@teste.com";
         static string senhaTeste = "senhaTeste";
-        static string senhaHash = BCrypt.Net.BCrypt.HashPassword("senhaTeste");
         private UsuarioCreateDTO CriarUsuarioCreateDTOTeste()
         {
             UsuarioCreateDTO usuario = new UsuarioCreateDTO();

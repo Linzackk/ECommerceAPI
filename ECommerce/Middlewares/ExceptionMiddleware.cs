@@ -49,6 +49,7 @@ namespace ECommerce.Middlewares
             }
 
                 context.Response.StatusCode = statusCode;
+
             var result = System.Text.Json.JsonSerializer.Serialize(new
             {
                 error = message,

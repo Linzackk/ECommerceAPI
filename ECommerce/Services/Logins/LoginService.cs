@@ -30,7 +30,7 @@ namespace ECommerce.Services.Logins
             return token;
         }
 
-        private async Task<Login> ProcurarLoginPorEmail(string email)
+        public async Task<Login> ProcurarLoginPorEmail(string email)
         {
             var login = await _repository.ObterPorEmail(email);
             if (login == null)
@@ -39,28 +39,32 @@ namespace ECommerce.Services.Logins
         }
 
         private Login CriarLoginPorDTO(LoginCreateDTO novoLogin)
-        {
-            var senhaHash = BCrypt.Net.BCrypt.HashPassword(novoLogin.Senha);
-            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {novoLogin.Email}, {novoLogin.Senha}, {novoLogin.IdUsuario}");
-            return new Login(novoLogin.Email, senhaHash, novoLogin.IdUsuario);
+        {        
+            return new Login(novoLogin.Email, novoLogin.Senha, novoLogin.IdUsuario);
         }
 
         public async Task CriarLogin(LoginCreateDTO novoLogin)
         {
             var login = CriarLoginPorDTO(novoLogin);
-            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {login.Email}, {login.Senha}, {login.IdUsuario}");
+
+            var senhaHash = BCrypt.Net.BCrypt.HashPassword(novoLogin.Senha);
+            login.DefinirNovaSenha(senhaHash);
+
             await _repository.CriarLogin(login);
         }
 
         public async Task DeletarLogin(Guid usuarioId)
         {
             var login = await ProcurarLoginPorUsuarioId(usuarioId);
+            if (login == null)
+                throw new UsuarioNotFound();
             await _repository.RemoverLogin(login);
         }
 
-        public async Task<Login> ProcurarLoginPorUsuarioId(Guid usuarioId)
+        public async Task<Login?> ProcurarLoginPorUsuarioId(Guid usuarioId)
         {
-            return await _repository.ProcurarLoginPorUsuarioId(usuarioId);
+            var resultado = await _repository.ProcurarLoginPorUsuarioId(usuarioId);
+            return resultado;
         }
     }
 }

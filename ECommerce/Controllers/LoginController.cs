@@ -18,7 +18,7 @@ namespace ECommerce.Controllers
         [HttpPost]
         public async Task<IActionResult> FazerLogin([FromBody] LoginEntrarDTO credenciais)
         {
-            var token = _service.FazerLogin(credenciais);
+            var token = await _service.FazerLogin(credenciais);
             return Ok(token);
         }
 

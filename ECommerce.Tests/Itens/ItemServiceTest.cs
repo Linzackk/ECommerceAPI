@@ -1,4 +1,5 @@
 ﻿using ECommerce.DTOs.Itens;
+using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Itens;
 using ECommerce.Services.Itens;
@@ -65,6 +66,20 @@ namespace ECommerce.Tests.Itens
             Assert.NotNull(resultado);
             Assert.NotEqual(Guid.Empty, resultado.Id);
             Assert.Equal(Hoje, resultado.DataCriacao);
+            mock.Verify(x => x.CriarItem(It.IsAny<Item>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeveCriarItemInvalido_ErroDeveSerLancado()
+        {
+            var itemInvalido = new ItemCreateDTO();
+
+            var mock = new Mock<IItemRepository>();
+
+            var service = new ItemService(mock.Object);
+
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.CriarNovoItem(itemInvalido));
+            mock.Verify(x => x.CriarItem(It.IsAny<Item>()), Times.Never);
         }
     }
 }

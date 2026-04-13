@@ -113,5 +113,21 @@ namespace ECommerce.Tests.Itens
             mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);
             mock.Verify(x => x.AtualizarItem(It.IsAny<Item>()), Times.Once);
         }
+
+        [Fact]
+        public async Task DeveRemoverItem_ItemRemovido()
+        {
+            var item = CriarItemValido();
+
+            var mock = new Mock<IItemRepository>();
+            mock.Setup(x => x.ObterItemPorId(IdTeste))
+                .ReturnsAsync(item);
+
+            var service = new ItemService(mock.Object);
+
+            await service.RemoverItem(IdTeste);
+            mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);
+            mock.Verify(x => x.RemoverItem(It.IsAny<Item>()), Times.Once);
+        }
     }
 }

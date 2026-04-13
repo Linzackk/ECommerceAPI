@@ -39,16 +39,17 @@ namespace ECommerce.Services.Logins
         }
 
         private Login CriarLoginPorDTO(LoginCreateDTO novoLogin)
-        {
-            var senhaHash = BCrypt.Net.BCrypt.HashPassword(novoLogin.Senha);
-            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {novoLogin.Email}, {novoLogin.Senha}, {novoLogin.IdUsuario}");
-            return new Login(novoLogin.Email, senhaHash, novoLogin.IdUsuario);
+        {        
+            return new Login(novoLogin.Email, novoLogin.Senha, novoLogin.IdUsuario);
         }
 
         public async Task CriarLogin(LoginCreateDTO novoLogin)
         {
             var login = CriarLoginPorDTO(novoLogin);
-            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {login.Email}, {login.Senha}, {login.IdUsuario}");
+
+            var senhaHash = BCrypt.Net.BCrypt.HashPassword(novoLogin.Senha);
+            login.DefinirNovaSenha(senhaHash);
+
             await _repository.CriarLogin(login);
         }
 

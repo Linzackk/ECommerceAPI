@@ -29,5 +29,13 @@ namespace ECommerce.Models
             Id = Guid.NewGuid();
             IdUsuario = idUsuario;
         }
+
+        public void DefinirNovaSenha(string novaSenha)
+        {
+            if (novaSenha == null)
+                throw new ParametroInvalidoException("Senha não pode estar vazia.");
+
+            Senha = novaSenha;
+        }
     }
 }

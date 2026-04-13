@@ -16,10 +16,11 @@ namespace ECommerce.Tests.Logins
     {
         static string senhaTeste = "senhaSenha";
         static string emailTeste = "email@email.com";
+        static Guid usuarioIdTeste = Guid.NewGuid();
 
         private static Login CriarNovoLoginValido()
         {
-            return new Login(emailTeste, senhaTeste, Guid.NewGuid());
+            return new Login(emailTeste, senhaTeste, usuarioIdTeste);
         }
 
         private static LoginCreateDTO CriarNovoLoginDTOValido()
@@ -27,7 +28,7 @@ namespace ECommerce.Tests.Logins
             var login = new LoginCreateDTO();
             login.Email = emailTeste;
             login.Senha = senhaTeste;
-            login.IdUsuario = Guid.NewGuid();
+            login.IdUsuario = usuarioIdTeste;
             return login;
         }
 
@@ -37,7 +38,7 @@ namespace ECommerce.Tests.Logins
         }
 
         [Fact]
-        public async Task CriarLogin_DeveCriarLogin_BuscarLoginCriado()
+        public async Task BuscaValida_DeveCriarLogin_BuscarLoginValido()
         {
             var login = CriarNovoLoginValido();
 
@@ -51,8 +52,6 @@ namespace ECommerce.Tests.Logins
             var resultado = await service.ProcurarLoginPorEmail(emailTeste);
 
             Assert.NotNull(resultado);
-            Assert.Equal(login.Email, resultado.Email);
-            Assert.Equal(login.IdUsuario, resultado.IdUsuario);
         }
 
         [Fact]
@@ -65,6 +64,28 @@ namespace ECommerce.Tests.Logins
             var service = new LoginService(mock.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.CriarLogin(login));
+        }
+
+        [Fact]
+        public async Task CriarLogin_DeveCriarLogin_BuscarEValidarInformacoes()
+        {
+            var loginResponse = CriarNovoLoginValido();
+            var loginCreate = CriarNovoLoginDTOValido();
+
+            var mock = new Mock<ILoginRepository>();
+
+            mock.Setup(x => x.ObterPorEmail(emailTeste))
+                .ReturnsAsync(loginResponse);
+
+            var service = new LoginService(mock.Object);
+
+            await service.CriarLogin(loginCreate);
+
+            var response = await service.ProcurarLoginPorEmail(emailTeste);
+
+            Assert.NotNull(response);
+            Assert.Equal(loginCreate.Email, response.Email);
+            Assert.Equal(loginCreate.IdUsuario, response.IdUsuario);
         }
     }
 }

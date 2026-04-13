@@ -56,12 +56,15 @@ namespace ECommerce.Services.Logins
         public async Task DeletarLogin(Guid usuarioId)
         {
             var login = await ProcurarLoginPorUsuarioId(usuarioId);
+            if (login == null)
+                throw new UsuarioNotFound();
             await _repository.RemoverLogin(login);
         }
 
-        public async Task<Login> ProcurarLoginPorUsuarioId(Guid usuarioId)
+        public async Task<Login?> ProcurarLoginPorUsuarioId(Guid usuarioId)
         {
-            return await _repository.ProcurarLoginPorUsuarioId(usuarioId);
+            var resultado = await _repository.ProcurarLoginPorUsuarioId(usuarioId);
+            return resultado;
         }
     }
 }

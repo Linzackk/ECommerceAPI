@@ -30,7 +30,7 @@ namespace ECommerce.Services.Logins
             return token;
         }
 
-        private async Task<Login> ProcurarLoginPorEmail(string email)
+        public async Task<Login> ProcurarLoginPorEmail(string email)
         {
             var login = await _repository.ObterPorEmail(email);
             if (login == null)

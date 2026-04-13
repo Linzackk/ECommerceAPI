@@ -38,7 +38,7 @@ namespace ECommerce.Tests.Logins
         }
 
         [Fact]
-        public async Task BuscaValida_DeveCriarLogin_BuscarLoginValido()
+        public async Task BuscaValida_DeveBuscarLogin_LoginNaoNulo()
         {
             var login = CriarNovoLoginValido();
 
@@ -86,6 +86,23 @@ namespace ECommerce.Tests.Logins
             Assert.NotNull(response);
             Assert.Equal(loginCreate.Email, response.Email);
             Assert.Equal(loginCreate.IdUsuario, response.IdUsuario);
+
+            mock.Verify(x => x.CriarLogin(It.IsAny<Login>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task ProcurarLogin_DeveLancarErro_QuandoLoginNaoExistir()
+        {
+            var login = CriarNovoLoginValido();
+
+            var mock = new Mock<ILoginRepository>();
+
+            mock.Setup(x => x.ObterPorEmail(emailTeste))
+                .ReturnsAsync((Login?)null);
+
+            var service = new LoginService(mock.Object);
+
+            await Assert.ThrowsAsync<LoginCredenciaisInvalidasException>(() => service.ProcurarLoginPorEmail(emailTeste));
         }
     }
 }

@@ -81,5 +81,17 @@ namespace ECommerce.Tests.Itens
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.CriarNovoItem(itemInvalido));
             mock.Verify(x => x.CriarItem(It.IsAny<Item>()), Times.Never);
         }
+
+        [Fact]
+        public async Task DeveAtualizarItem_ErroDeveSerLancado()
+        {
+            var atualizacaoInvalida = new ItemUpdateDTO();
+
+            var mock = new Mock<IItemRepository>();
+
+            var service = new ItemService(mock.Object);
+
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItem(atualizacaoInvalida, IdTeste));
+        }
     }
 }

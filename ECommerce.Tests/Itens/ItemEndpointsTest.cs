@@ -149,5 +149,28 @@ namespace ECommerce.Tests.Itens
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
             Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Deve_RemoverItemExistente_Retorno204()
+        {
+            var item = CriarItemValido();
+
+            var postResponse = await _client.PostAsJsonAsync(_url, item);
+            postResponse.EnsureSuccessStatusCode();
+
+            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{itemCriado.Id}");
+            deleteResponse.EnsureSuccessStatusCode();
+
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_RemoverItemInexistente_LancarErroNotFound()
+        {
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
     }
 }

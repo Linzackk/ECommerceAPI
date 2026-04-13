@@ -13,6 +13,7 @@ namespace ECommerce.Tests.Itens
     {
         private readonly string _url = "api/itens";
         private readonly HttpClient _client;
+        private readonly Guid IdTeste = Guid.NewGuid();
 
         public ItemEndpointsTest(CustomWebApplicationFactory factory)
         {
@@ -69,6 +70,37 @@ namespace ECommerce.Tests.Itens
             var postResponse = await _client.PostAsJsonAsync(_url, item);
 
             Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_CriarItem_BuscarItemRetorno200()
+        {
+            var item = CriarItemValido();
+
+            var postResponse = await _client.PostAsJsonAsync(_url, item);
+            postResponse.EnsureSuccessStatusCode();
+
+            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+
+            var getResponse = await _client.GetAsync($"{_url}/{itemCriado.Id}");
+            getResponse.EnsureSuccessStatusCode();
+
+            var itemResponse = await getResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+
+            Assert.NotNull(itemCriado);
+            Assert.Equal(item.Nome, itemResponse.Nome);
+            Assert.Equal(item.Descricao, itemResponse.Descricao);
+            Assert.Equal(item.Estoque, itemResponse.Estoque);
+            Assert.Equal(item.Preco, itemResponse.Preco);
+            Assert.NotEqual(Guid.Empty, itemResponse.Id);
+            Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);
+        }
+
+        [Fact]
+        public async Task Deve_ProcurarItemInexistente_Retorno404()
+        {
+            var getResponse = await _client.GetAsync($"{_url}/{IdTeste}");
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
     }
 }

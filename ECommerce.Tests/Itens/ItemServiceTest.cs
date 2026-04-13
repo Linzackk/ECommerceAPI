@@ -92,6 +92,26 @@ namespace ECommerce.Tests.Itens
             var service = new ItemService(mock.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItem(atualizacaoInvalida, IdTeste));
+            mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Never);
+            mock.Verify(x => x.AtualizarItem(It.IsAny<Item>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeveAtualizarItemCorretamente_RepositoryChamadoUmaVez()
+        {
+            var atualizacaoValida = new ItemUpdateDTO() { Preco = 5.89M };
+
+            var item = CriarItemValido();
+
+            var mock = new Mock<IItemRepository>();
+            mock.Setup(x => x.ObterItemPorId(IdTeste))
+                .ReturnsAsync(item);
+
+            var service = new ItemService(mock.Object);
+
+            await service.AtualizarItem(atualizacaoValida, IdTeste);
+            mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);
+            mock.Verify(x => x.AtualizarItem(It.IsAny<Item>()), Times.Once);
         }
     }
 }

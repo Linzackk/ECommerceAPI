@@ -32,5 +32,30 @@ namespace ECommerce.Models
             Preco = preco;
             DataCriacao = DateOnly.FromDateTime(DateTime.Now);
         }
+
+        public void AlterarPreco(decimal novoPreco)
+        {
+            if (novoPreco <= 0)
+                throw new ParametroInvalidoException("Preço deve ser maior que 0.");
+
+            Preco = novoPreco;
+        }
+
+        public void AumentarEstoque(int valorAumentado)
+        {
+            if (valorAumentado <= 0)
+                throw new ParametroInvalidoException("Apenas valores a cima de 0.");
+
+            Estoque += valorAumentado;
+        }
+
+        public void ReduzirEstoque(int valorReduzido)
+        {
+            if (valorReduzido <= 0)
+                throw new ParametroInvalidoException("Apenas valores a cima de 0.");
+
+            if (Estoque < valorReduzido)
+                throw new EstoqueInsuficienteException(Nome);
+        }
     }
 }

@@ -43,9 +43,9 @@ namespace ECommerce.Controllers
         }
 
         [HttpPost("{pedidoId}/Itens")]
-        public async Task<IActionResult> AdicionarItemAoPedido([FromBody] PedidoItemCreateDTO novoPedidoItem)
+        public async Task<IActionResult> AdicionarItemAoPedido([FromBody] PedidoItemCreateDTO novoPedidoItem, Guid pedidoId)
         {
-            await _service.AdicionarItemNoPedido(novoPedidoItem);
+            await _service.AdicionarItemNoPedido(novoPedidoItem, pedidoId);
             return Ok();
         }
 
@@ -57,16 +57,16 @@ namespace ECommerce.Controllers
         }
 
         [HttpPatch("{pedidoId}/Itens")]
-        public async Task<IActionResult> AtualizarItemNoPedido([FromBody] PedidoItemUpdateDTO pedidoItemAtualizado)
+        public async Task<IActionResult> AtualizarItemNoPedido([FromBody] PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)
         {
-            await _service.AtualizarItemNoPedido(pedidoItemAtualizado);
+            await _service.AtualizarItemNoPedido(pedidoItemAtualizado, pedidoId);
             return NoContent();
         }
 
         [HttpDelete("{pedidoId}/Itens")]
-        public async Task<IActionResult> RemoverItemDoPedido([FromBody] PedidoItemRemoveDTO pedidoItemRemove)
+        public async Task<IActionResult> RemoverItemDoPedido([FromBody] PedidoItemRemoveDTO pedidoItemRemove, Guid pedidoId)
         {
-            await _service.RemoverItemNoPedido(pedidoItemRemove);
+            await _service.RemoverItemNoPedido(pedidoItemRemove, pedidoId);
             return NoContent();
         }
     }

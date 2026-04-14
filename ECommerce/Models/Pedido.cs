@@ -21,16 +21,39 @@ namespace ECommerce.Models
 
         public void AdicionarNovoItem(Item novoItem, int quantidade)
         {
-            if (Finalizado)
-                throw new ParametroInvalidoException("Não é possivel alterar o pedido, ele já foi fechado.");
-
-            var itemExistente = Itens.FirstOrDefault(pi => pi.IdItem == novoItem.Id);
+            ValidarPedidoAlteravel();
+            var itemExistente = ProcurarPedidoItem(novoItem.Id);
 
             if (itemExistente != null)
                 throw new ParametroInvalidoException("Item já adicionado ao Pedido.");
 
             var pedidoItem = new PedidoItem(Id, novoItem.Id, quantidade, novoItem.Preco);
             Itens.Add(pedidoItem);
+        }
+
+        private PedidoItem? ProcurarPedidoItem(Guid itemId)
+        {
+            return Itens.FirstOrDefault(pi => pi.IdItem == itemId);
+        }
+
+        private void ValidarPedidoAlteravel()
+        {
+            if (Finalizado)
+                throw new ParametroInvalidoException("Não é possivel alterar o pedido, ele já foi fechado.");
+        }
+
+        public void AtualizarItem(Guid itemId, int quantidade)
+        {
+            ValidarPedidoAlteravel();
+
+            var itemExistente = ProcurarPedidoItem(itemId);
+            if (itemExistente == null)
+                throw new ParametroInvalidoException("Esse item não existe no pedido.");
+
+            if (quantidade <= 0)
+                throw new ParametroInvalidoException("Quantidade de Item deve ser maior que 0.");
+
+            itemExistente.DefinirQuantidade(quantidade);
         }
     }
 }

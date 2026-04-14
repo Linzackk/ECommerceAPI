@@ -21,14 +21,14 @@ namespace ECommerce.Controllers
             return CreatedAtAction(nameof(ObterPedidoPorId), new { Id = pedido.Id }, pedido);
         }
 
-        [HttpGet("{pedidoId}")]
+        [HttpGet("{pedidoId}/Itens")]
         public async Task<IActionResult> ObterPedidoPorId(Guid pedidoId) 
         {
             var pedido = await _service.ObterPedidoPorId(pedidoId);
             return Ok(pedido);
         }
 
-        [HttpGet("Usuarios/{usuarioId}")] // Com JWT vou remover e manter só o get e então pegar todos do id do usuario contido no JWT
+        [HttpGet("{usuarioId}")] // Com JWT vou remover e manter só o get e então pegar todos do id do usuario contido no JWT
         public async Task<IActionResult> ObterPedidoPorUsuarioId(Guid usuarioId)
         {
             var pedidos = await _service.ObterTodosPedidosUsuario(usuarioId);

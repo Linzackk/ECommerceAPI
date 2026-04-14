@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ECommerce.Migrations
 {
     /// <inheritdoc />
-    public partial class CriacaoBancoDados : Migration
+    public partial class atualizacaoTabelas : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,11 +20,25 @@ namespace ECommerce.Migrations
                     Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Estoque = table.Column<int>(type: "int", nullable: false),
                     Preco = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
+                    DataCriacao = table.Column<DateOnly>(type: "date", nullable: false, defaultValueSql: "GETDATE()")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Itens", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Login",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IdUsuario = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Login", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -38,31 +52,12 @@ namespace ECommerce.Migrations
                     Cidade = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Numero = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Cep = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Cpf = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false)
+                    Cpf = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Usuarios", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Login",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IdUsuario = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Login", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Login_Usuarios_IdUsuario",
-                        column: x => x.IdUsuario,
-                        principalTable: "Usuarios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -71,24 +66,24 @@ namespace ECommerce.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdUsuario = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Finalizado = table.Column<bool>(type: "bit", nullable: false)
+                    Finalizado = table.Column<bool>(type: "bit", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pedidos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Pedidos_Usuarios_IdUsuario",
-                        column: x => x.IdUsuario,
+                        name: "FK_Pedidos_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
                         principalTable: "Usuarios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "PedidosItens",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdPedido = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdItem = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantidade = table.Column<int>(type: "int", nullable: false),
@@ -118,15 +113,9 @@ namespace ECommerce.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Login_IdUsuario",
-                table: "Login",
-                column: "IdUsuario",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Pedidos_IdUsuario",
+                name: "IX_Pedidos_UsuarioId",
                 table: "Pedidos",
-                column: "IdUsuario");
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PedidosItens_IdItem",

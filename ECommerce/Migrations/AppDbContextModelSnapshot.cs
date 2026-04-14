@@ -28,9 +28,9 @@ namespace ECommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DataCriacao")
+                    b.Property<DateOnly>("DataCriacao")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("date")
                         .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Descricao")
@@ -91,17 +91,21 @@ namespace ECommerce.Migrations
                     b.Property<Guid>("IdUsuario")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("IdUsuario");
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Pedidos");
                 });
 
             modelBuilder.Entity("ECommerce.Models.PedidoItem", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdItem")
                         .HasColumnType("uniqueidentifier");
@@ -179,13 +183,9 @@ namespace ECommerce.Migrations
 
             modelBuilder.Entity("ECommerce.Models.Pedido", b =>
                 {
-                    b.HasOne("ECommerce.Models.Usuario", "Usuario")
+                    b.HasOne("ECommerce.Models.Usuario", null)
                         .WithMany("Pedidos")
-                        .HasForeignKey("IdUsuario")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
+                        .HasForeignKey("UsuarioId");
                 });
 
             modelBuilder.Entity("ECommerce.Models.PedidoItem", b =>

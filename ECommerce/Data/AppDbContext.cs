@@ -82,11 +82,6 @@ namespace ECommerce.Data
 
                 entity.Property(u => u.Finalizado)
                     .IsRequired();
-
-                entity.HasOne(p => p.Usuario)
-                    .WithMany(u => u.Pedidos)
-                    .HasForeignKey(p => p.IdUsuario)
-                    .IsRequired();
             });
 
             modelBuilder.Entity<PedidoItem>(entity =>

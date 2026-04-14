@@ -3,6 +3,7 @@ using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Pedidos;
+using ECommerce.Services.Itens;
 using ECommerce.Services.Usuarios;
 
 namespace ECommerce.Services.Pedidos
@@ -11,9 +12,12 @@ namespace ECommerce.Services.Pedidos
     {
         private readonly IPedidosRepository _repository;
         private readonly IUsuariosService _usuarioService;
-        public PedidoService(IPedidosRepository repository)
+        private readonly IItemService _itemService;
+        public PedidoService(IPedidosRepository repository, IUsuariosService usuarioService, IItemService itemService)
         {
             _repository = repository;
+            _usuarioService = usuarioService;
+            _itemService = itemService;
         }
 
         private PedidoResponseDTO CriarPedidoResponse(Pedido pedidoModel)
@@ -63,9 +67,7 @@ namespace ECommerce.Services.Pedidos
 
         public async Task<PedidoResponseDTO> ObterPedidoPorId(Guid pedidoId)
         {
-            var pedido = await _repository.ObterPedidoPorId(pedidoId);
-            if (pedido == null)
-                throw new PedidoNotFound();
+            var pedido = await ObterPedidoPeloId(pedidoId);
 
             return CriarPedidoResponse(pedido);
         }
@@ -83,20 +85,50 @@ namespace ECommerce.Services.Pedidos
 
         public async Task RemoverPedido(Guid pedidoId)
         {
-            var pedido = await _repository.ObterPedidoPorId(pedidoId);
-            if (pedido == null)
-                throw new PedidoNotFound();
+            var pedido = await ObterPedidoPeloId(pedidoId);
 
             await _repository.RemoverPedido(pedido);
         }
 
         public async Task FinalizarPedido(Guid pedidoId)
         {
+            var pedido = await ObterPedidoPeloId(pedidoId);
+
+            pedido.FinalizarPedido();
+            await _repository.AtualizarPedido(pedido);
+        }
+
+        private async Task<Pedido> ObterPedidoPeloId(Guid pedidoId)
+        {
             var pedido = await _repository.ObterPedidoPorId(pedidoId);
             if (pedido == null)
                 throw new PedidoNotFound();
 
-            pedido.FinalizarPedido();
+            return pedido;
+        }
+
+        public async Task AdicionarItemNoPedido(PedidoItemCreateDTO novoPedidoItem)
+        {
+            var pedido = await ObterPedidoPeloId(novoPedidoItem.PedidoId);
+            var item = await _itemService.ObterItemPorId(novoPedidoItem.ItemId);
+
+            pedido.AdicionarNovoItem(item.Id, item.Preco, novoPedidoItem.Quantidade);
+            await _repository.AtualizarPedido(pedido);
+        }
+
+        public async Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado)
+        {
+            var pedido = await ObterPedidoPeloId(pedidoItemAtualizado.PedidoId);
+            pedido.AtualizarItem(pedidoItemAtualizado.ItemId, pedidoItemAtualizado.Quantidade);
+
+            await _repository.AtualizarPedido(pedido);
+        }
+
+        public async Task RemoverItemNoPedido(PedidoItemRemoveDTO pedidoItemRemove)
+        {
+            var pedido = await ObterPedidoPeloId(pedidoItemRemove.PedidoId);
+            pedido.RemoverItem(pedidoItemRemove.ItemId);
+
             await _repository.AtualizarPedido(pedido);
         }
     }

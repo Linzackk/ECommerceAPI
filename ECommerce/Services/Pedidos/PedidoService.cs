@@ -18,7 +18,7 @@ namespace ECommerce.Services.Pedidos
 
         private PedidoResponseDTO CriarPedidoResponse(Pedido pedidoModel)
         {
-            var itensFormatados = new List<ItemPedidoResponseDTO>();
+            var itensFormatados = new List<PedidoItemResponseDTO>();
             foreach(var pedidoItem in pedidoModel.Itens)
             {
                 itensFormatados.Add(CriarItemPedidoResponse(pedidoItem));
@@ -32,9 +32,9 @@ namespace ECommerce.Services.Pedidos
             };
         }
 
-        private ItemPedidoResponseDTO CriarItemPedidoResponse(PedidoItem pedidoItemModel)
+        private PedidoItemResponseDTO CriarItemPedidoResponse(PedidoItem pedidoItemModel)
         {
-            return new ItemPedidoResponseDTO()
+            return new PedidoItemResponseDTO()
             {
                 IdItem = pedidoItemModel.Id,
                 Nome = pedidoItemModel.Item?.Nome ?? string.Empty,

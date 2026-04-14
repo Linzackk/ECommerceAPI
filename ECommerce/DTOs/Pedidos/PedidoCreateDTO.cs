@@ -3,7 +3,5 @@
     public class PedidoCreateDTO
     {
         public Guid IdUsuario { get; set; }
-        public IReadOnlyCollection<Guid>? IdsItens { get; set; }
-
     }
 }

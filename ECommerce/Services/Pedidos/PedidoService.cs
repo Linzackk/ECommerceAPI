@@ -56,7 +56,7 @@ namespace ECommerce.Services.Pedidos
             await ValidarExistenciaUsuario(novoPedido.IdUsuario);
 
             var pedidoAberto = await _repository.ObterPedidoAberto(novoPedido.IdUsuario);
-            if (pedidoAberto == null)
+            if (pedidoAberto != null)
                 throw new ParametroInvalidoException("Você já possui um pedido aberto.");
 
             var pedido = new Pedido(novoPedido.IdUsuario);
@@ -111,9 +111,11 @@ namespace ECommerce.Services.Pedidos
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
             var item = await _itemService.ObterItemPorId(novoPedidoItem.ItemId);
+            if (item == null)
+                throw new ItemNotFoundException();
 
-            pedido.AdicionarNovoItem(item.Id, item.Preco, novoPedidoItem.Quantidade);
-            await _repository.AtualizarPedido(pedido);
+            var pedidoItem = new PedidoItem(pedido.Id, item.Id, novoPedidoItem.Quantidade, item.Preco);
+            await _repository.AdicionarItemNoPedido(pedidoItem);
         }
 
         public async Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)
@@ -131,5 +133,6 @@ namespace ECommerce.Services.Pedidos
 
             await _repository.AtualizarPedido(pedido);
         }
+
     }
 }

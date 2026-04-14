@@ -19,7 +19,9 @@ namespace ECommerce.Repositories.Itens
 
         public async Task<Item?> ObterItemPorId(Guid itemId)
         {
-            var item = await _context.Itens.FirstOrDefaultAsync(x => x.Id == itemId);
+            var item = await _context.Itens
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == itemId);
             return item;
         }
 

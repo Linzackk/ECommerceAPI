@@ -19,15 +19,15 @@ namespace ECommerce.Models
             Finalizado = false;
         }
 
-        public void AdicionarNovoItem(Item novoItem, int quantidade)
+        public void AdicionarNovoItem(Guid itemId, decimal precoItem, int quantidade)
         {
             ValidarPedidoAlteravel();
-            var itemExistente = ProcurarPedidoItem(novoItem.Id);
+            var itemExistente = ProcurarPedidoItem(itemId);
 
             if (itemExistente != null)
                 throw new ParametroInvalidoException("Item já adicionado ao Pedido.");
 
-            var pedidoItem = new PedidoItem(Id, novoItem.Id, quantidade, novoItem.Preco);
+            var pedidoItem = new PedidoItem(Id, itemId, quantidade, precoItem);
             Itens.Add(pedidoItem);
         }
 
@@ -50,10 +50,36 @@ namespace ECommerce.Models
             if (itemExistente == null)
                 throw new ParametroInvalidoException("Esse item não existe no pedido.");
 
-            if (quantidade <= 0)
-                throw new ParametroInvalidoException("Quantidade de Item deve ser maior que 0.");
-
             itemExistente.DefinirQuantidade(quantidade);
+        }
+
+        public void RemoverItem(Guid itemId)
+        {
+            ValidarPedidoAlteravel();
+
+            var itemExistente = ProcurarPedidoItem(itemId);
+            if (itemExistente == null)
+                throw new ParametroInvalidoException("Esse item não existe no pedido.");
+
+            Itens.Remove(itemExistente);
+        }
+
+        public decimal CalcularTotal()
+        {
+            return Itens.Sum(i => i.CalcularTotal());
+        }
+
+        public IReadOnlyCollection<PedidoItem> ObterPedidoItens()
+        {
+            return Itens.AsReadOnly();
+        }
+
+        public void FinalizarPedido()
+        {
+            if (!Itens.Any())
+                throw new ParametroInvalidoException("Não é possível fechar o Pedido sem itens.");
+
+            Finalizado = true;
         }
     }
 }

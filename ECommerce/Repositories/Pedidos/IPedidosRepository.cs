@@ -9,5 +9,6 @@ namespace ECommerce.Repositories.Pedidos
         Task<IReadOnlyCollection<Pedido>> ObterPedidosPorIdUsuario(Guid idUsuario);
         Task AtualizarPedido(Pedido pedido);
         Task RemoverPedido(Pedido pedido);
+        Task<Pedido?> ObterPedidoAberto(Guid idUsuario);
     }
 }

@@ -40,5 +40,11 @@ namespace ECommerce.Repositories.Pedidos
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Pedido?> ObterPedidoAberto(Guid idUsuario)
+        {
+            var pedido = await _context.Pedidos.FirstOrDefaultAsync(p => p.IdUsuario.Equals(idUsuario) && p.Finalizado == false);
+            return pedido;
+        }
     }
 }

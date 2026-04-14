@@ -10,8 +10,8 @@ namespace ECommerce.Services.Pedidos
         Task FinalizarPedido(Guid pedidoId);
         Task RemoverPedido(Guid pedidoId);
 
-        Task AdicionarItemNoPedido(PedidoItemCreateDTO novoPedidoItem);
-        Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado);
-        Task RemoverItemNoPedido(PedidoItemRemoveDTO pedidoItem);
+        Task AdicionarItemNoPedido(PedidoItemCreateDTO novoPedidoItem, Guid pedidoId);
+        Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId);
+        Task RemoverItemNoPedido(PedidoItemRemoveDTO pedidoItem, Guid pedidoId);
     }
 }

@@ -20,13 +20,20 @@ namespace ECommerce.Repositories.Pedidos
 
         public async Task<Pedido?> ObterPedidoPorId(Guid pedidoId)
         {
-            var pedido = await _context.Pedidos.FirstOrDefaultAsync(p => p.Id.Equals(pedidoId));
+            var pedido = await _context.Pedidos
+                .Include(p => p.Itens)
+                    .ThenInclude(pi => pi.Item)
+                .FirstOrDefaultAsync(p => p.Id.Equals(pedidoId));
             return pedido;
         }
 
         public async Task<IReadOnlyCollection<Pedido>> ObterPedidosPorIdUsuario(Guid idUsuario)
         {
-            var pedidos = await _context.Pedidos.Where(p => p.IdUsuario.Equals(idUsuario)).ToListAsync();
+            var pedidos = await _context.Pedidos
+                .Where(p => p.IdUsuario.Equals(idUsuario))
+                .Include(p => p.Itens)
+                    .ThenInclude(pi => pi.Item)
+                .ToListAsync();
             return pedidos;
         }
 

@@ -21,13 +21,6 @@ namespace ECommerce.Controllers
             return CreatedAtAction(nameof(ObterPedidoPorId), new { Id = pedido.Id }, pedido);
         }
 
-        [HttpGet("{pedidoId}/Itens")]
-        public async Task<IActionResult> ObterPedidoPorId(Guid pedidoId) 
-        {
-            var pedido = await _service.ObterPedidoPorId(pedidoId);
-            return Ok(pedido);
-        }
-
         [HttpGet("{usuarioId}")] // Com JWT vou remover e manter só o get e então pegar todos do id do usuario contido no JWT
         public async Task<IActionResult> ObterPedidoPorUsuarioId(Guid usuarioId)
         {
@@ -46,6 +39,34 @@ namespace ECommerce.Controllers
         public async Task<IActionResult> RemoverPedido(Guid pedidoId)
         {
             await _service.RemoverPedido(pedidoId);
+            return NoContent();
+        }
+
+        [HttpPost("{pedidoId}/Itens")]
+        public async Task<IActionResult> AdicionarItemAoPedido([FromBody] PedidoItemCreateDTO novoPedidoItem)
+        {
+            await _service.AdicionarItemNoPedido(novoPedidoItem);
+            return Ok();
+        }
+
+        [HttpGet("{pedidoId}/Itens")]
+        public async Task<IActionResult> ObterPedidoPorId(Guid pedidoId)
+        {
+            var pedido = await _service.ObterPedidoPorId(pedidoId);
+            return Ok(pedido);
+        }
+
+        [HttpPatch("{pedidoId}/Itens")]
+        public async Task<IActionResult> AtualizarItemNoPedido([FromBody] PedidoItemUpdateDTO pedidoItemAtualizado)
+        {
+            await _service.AtualizarItemNoPedido(pedidoItemAtualizado);
+            return NoContent();
+        }
+
+        [HttpDelete("{pedidoId}/Itens")]
+        public async Task<IActionResult> RemoverItemDoPedido([FromBody] PedidoItemRemoveDTO pedidoItemRemove)
+        {
+            await _service.RemoverItemNoPedido(pedidoItemRemove);
             return NoContent();
         }
     }

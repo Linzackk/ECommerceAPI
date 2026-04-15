@@ -43,6 +43,7 @@ namespace ECommerce.Tests.Pedidos
             var pedido = new Pedido(IdTeste);
             pedido.AdicionarNovoItem(IdTeste, 8.95M, 5);
             pedido.FinalizarPedido();
+            Console.WriteLine($"{pedido.Finalizado}");
             return pedido;
         }
 
@@ -66,6 +67,9 @@ namespace ECommerce.Tests.Pedidos
             var mockUsuario = new Mock<IUsuariosService>();
             var mockItem = new Mock<IItemService>();
 
+            mock.Setup(x => x.ObterPedidoAberto(IdTeste))
+                .ReturnsAsync((Pedido?)null);
+
             mockUsuario.Setup(x => x.ObterUsuarioPorId(IdTeste))
                 .ReturnsAsync(usuario);
 
@@ -77,5 +81,6 @@ namespace ECommerce.Tests.Pedidos
             Assert.NotEqual(Guid.Empty, resultado.Id);
             Assert.Empty(resultado.Itens);
         }
+
     }
 }

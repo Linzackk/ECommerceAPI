@@ -1,5 +1,6 @@
 ﻿using ECommerce.DTOs.Pedidos;
 using ECommerce.DTOs.Usuarios;
+using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Itens;
 using ECommerce.Repositories.Pedidos;
@@ -86,9 +87,7 @@ namespace ECommerce.Tests.Pedidos
         public async Task Deve_ObterTodosPedidos_SemErros()
         {
             var usuario = CriarUsuarioValido();
-            var pedidoInput = CriarPedidoDTOValido();
             var pedidos = new List<Pedido>() { CriarPedidoAbertoValido(), CriarPedidoFechadoValido() };
-
 
             var mock = new Mock<IPedidosRepository>();
             var mockUsuario = new Mock<IUsuariosService>();
@@ -107,6 +106,46 @@ namespace ECommerce.Tests.Pedidos
             Assert.NotNull(resultado);
             Assert.Equal(typeof(List<PedidoResponseDTO>), resultado.GetType());
             Assert.Equal(2, resultado.Count);
+        }
+
+        [Fact]
+        public async Task Deve_ObterPedido_SemErros()
+        {
+            var usuario = CriarUsuarioValido();
+            var pedidoResponse = CriarPedidoAbertoValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedidoResponse);
+
+            mockUsuario.Setup(x => x.ObterUsuarioPorId(IdTeste))
+                .ReturnsAsync(usuario);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            var resultado = await service.ObterPedidoPorId(IdTeste);
+
+            Assert.NotNull(resultado);
+        }
+
+        [Fact]
+        public async Task Deve_LancarErro_QuandoProcurarPedidoInexistente()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mockUsuario.Setup(x => x.ObterUsuarioPorId(IdTeste))
+                .ReturnsAsync(usuario);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await Assert.ThrowsAsync<PedidoNotFound>(() => service.ObterPedidoPorId(IdTeste));
         }
     }
 }

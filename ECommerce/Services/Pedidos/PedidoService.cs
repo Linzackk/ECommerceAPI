@@ -87,6 +87,7 @@ namespace ECommerce.Services.Pedidos
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
 
+            // Deletar todos PedidoItem que contenham o ID do Pedido
             await _repository.RemoverPedido(pedido);
         }
 

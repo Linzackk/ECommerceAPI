@@ -44,12 +44,15 @@ namespace ECommerce.Tests.Pedidos
             };
         }
 
+        private void AdicionarItemAoPedido(Pedido pedido)
+        {
+            pedido.AdicionarNovoItem(Guid.NewGuid(), 8.95M, 5);
+        }
         private Pedido CriarPedidoFechadoValido()
         {
             var pedido = new Pedido(IdTeste);
-            pedido.AdicionarNovoItem(IdTeste, 8.95M, 5);
+            AdicionarItemAoPedido(pedido);
             pedido.FinalizarPedido();
-            Console.WriteLine($"{pedido.Finalizado}");
             return pedido;
         }
 
@@ -237,5 +240,43 @@ namespace ECommerce.Tests.Pedidos
             mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
         }
 
+        [Fact]
+        public async Task Deve_FinalizarPedido_SemErro()
+        {
+            var pedido = CriarPedidoAbertoValido();
+            AdicionarItemAoPedido(pedido);
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedido);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await service.FinalizarPedido(IdTeste);
+            mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
+            mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Deve_LancarErro_FinalizarPedidoVazio()
+        {
+            var pedido = CriarPedidoAbertoValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedido);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.FinalizarPedido(IdTeste));
+            mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
+            mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never);
+        }
     }
 }

@@ -118,7 +118,7 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
-        public async Task Deve_RemoverItemDoPedido_Reotrno200()
+        public async Task Deve_RemoverItemDoPedido_Retorno200()
         {
             var item = await CriarItemNoContexto();
             var pedido = await CriarUsuarioEPedidoNoContexto();
@@ -129,6 +129,37 @@ namespace ECommerce.Tests.PedidoItens
             postResponse.EnsureSuccessStatusCode();
 
             var deleteResponse = await _client.DeleteAsync($"{url}/{item.Id}");
+        }
+
+        [Fact]
+        public async Task Deve_RemoverItemInexistenteDoPedido_Retorno400()
+        {
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+
+            var deleteResponse = await _client.DeleteAsync($"{url}/{IdTeste}");
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarAQuantidadeDoItemNoPedido_Retorno200()
+        {
+            var item = await CriarItemNoContexto();
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+            var pedidoItem = CriarPedidoItemValido(item.Id, 1);
+            var updateItem = new PedidoItemUpdateDTO() { ItemId = item.Id, Quantidade = 3 };
+
+            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            postResponse.EnsureSuccessStatusCode();
+
+            var updateResponse = await _client.PatchAsJsonAsync(url, updateItem);
+            updateResponse.EnsureSuccessStatusCode();
+
+            var getResponse = await _client.GetAsync(url);
+            getResponse.EnsureSuccessStatusCode();
+
+            var response = await getResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
+            Assert.NotNull(response);
         }
     }
 }

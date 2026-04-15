@@ -24,6 +24,11 @@ namespace ECommerce.Tests.Pedidos
         {
             return new PedidoCreateDTO() { IdUsuario = IdTeste };
         }
+
+        private PedidoCreateDTO CriarPedidoInvalido()
+        {
+            return new PedidoCreateDTO() { IdUsuario = Guid.NewGuid() };
+        }
         private UsuarioResponseDTO CriarUsuarioValido()
         {
             return new UsuarioResponseDTO()
@@ -82,6 +87,24 @@ namespace ECommerce.Tests.Pedidos
             Assert.NotEqual(Guid.Empty, resultado.Id);
             Assert.Empty(resultado.Itens);
             mock.Verify(x => x.CriarNovoPedido(It.IsAny<Pedido>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Deve_LancarErro_QuandoCriarPedidoUsuarioInexistente()
+        {
+            var pedidoInput = CriarPedidoInvalido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mockUsuario.Setup(x => x.ObterUsuarioPorId(pedidoInput.IdUsuario))
+                .ThrowsAsync(new UsuarioNotFound());
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await Assert.ThrowsAsync<UsuarioNotFound>(() => service.CriarNovoPedido(pedidoInput));
+            mock.Verify(x => x.CriarNovoPedido(It.IsAny<Pedido>()), Times.Never);
         }
 
         [Fact]

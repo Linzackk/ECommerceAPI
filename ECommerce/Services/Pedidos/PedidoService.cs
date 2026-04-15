@@ -87,6 +87,7 @@ namespace ECommerce.Services.Pedidos
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
 
+            // Deletar todos PedidoItem que contenham o ID do Pedido
             await _repository.RemoverPedido(pedido);
         }
 
@@ -126,10 +127,10 @@ namespace ECommerce.Services.Pedidos
             await _repository.AtualizarPedido(pedido);
         }
 
-        public async Task RemoverItemNoPedido(PedidoItemRemoveDTO pedidoItemRemove, Guid pedidoId)
+        public async Task RemoverItemNoPedido(Guid pedidoItemRemove, Guid pedidoId)
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
-            pedido.RemoverItem(pedidoItemRemove.ItemId);
+            pedido.RemoverItem(pedidoItemRemove);
 
             await _repository.AtualizarPedido(pedido);
         }

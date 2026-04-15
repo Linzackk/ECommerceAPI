@@ -140,6 +140,61 @@ namespace ECommerce.Tests.PedidoItens
             mock.Verify(x => x.AdicionarItemNoPedido(It.IsAny<PedidoItem>()), Times.Never);
         }
 
-        
+        [Fact]
+        public async Task Deve_AtualizarItemNoPedido_SemErros()
+        {
+            var item = CriarItemValido(Guid.NewGuid());
+            var itemUpdate = new PedidoItemUpdateDTO() { ItemId = item.Id, Quantidade = 5 };
+            var pedido = CriarPedidoAbertoValido();
+            pedido.AdicionarNovoItem(item.Id, item.Preco, 3);
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedido);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            await service.AtualizarItemNoPedido(itemUpdate, IdTeste);
+        }
+
+        [Fact]
+        public async Task Deve_LancarErro_QuandoAtualizarItemInexistente()
+        {
+            var itemUpdate = new PedidoItemUpdateDTO() { ItemId = IdTeste, Quantidade = 5 };
+            var pedido = CriarPedidoAbertoValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedido);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
+            mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never());
+        }
+
+        [Fact]
+        public async Task Deve_LancarErro_QuandoQuantidadeForInvalida()
+        {
+            var item = CriarItemValido(Guid.NewGuid());
+            var itemUpdate = new PedidoItemUpdateDTO() { ItemId = item.Id, Quantidade = -1 };
+            var pedido = CriarPedidoAbertoValido();
+            pedido.AdicionarNovoItem(item.Id, item.Preco, 3);
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedido);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
+            mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never());
+        }
     }
 }

@@ -18,7 +18,8 @@ namespace ECommerce.Controllers
         public async Task<IActionResult> CriarPedido([FromBody] PedidoCreateDTO novoPedido)
         {
             var pedido = await _service.CriarNovoPedido(novoPedido);
-            return CreatedAtAction(nameof(ObterPedidoPorId), new { Id = pedido.Id }, pedido);
+            return Ok(pedido);
+            //return CreatedAtAction(nameof(ObterPedidoPorId), new { Id = pedido.Id }, pedido);
         }
 
         [HttpGet("{usuarioId}")] // Com JWT vou remover e manter só o get e então pegar todos do id do usuario contido no JWT

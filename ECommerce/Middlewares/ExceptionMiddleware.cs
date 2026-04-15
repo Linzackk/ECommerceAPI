@@ -31,6 +31,7 @@ namespace ECommerce.Middlewares
 
             int statusCode = StatusCodes.Status500InternalServerError;
             string message = "Erro interno do Servidor.";
+            
 
             if (ex is NotFoundException)
             {

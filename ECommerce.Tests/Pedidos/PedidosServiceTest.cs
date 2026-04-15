@@ -82,5 +82,31 @@ namespace ECommerce.Tests.Pedidos
             Assert.Empty(resultado.Itens);
         }
 
+        [Fact]
+        public async Task Deve_ObterTodosPedidos_SemErros()
+        {
+            var usuario = CriarUsuarioValido();
+            var pedidoInput = CriarPedidoDTOValido();
+            var pedidos = new List<Pedido>() { CriarPedidoAbertoValido(), CriarPedidoFechadoValido() };
+
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidosPorIdUsuario(IdTeste))
+                .ReturnsAsync(pedidos);
+
+            mockUsuario.Setup(x => x.ObterUsuarioPorId(IdTeste))
+                .ReturnsAsync(usuario);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            var resultado = await service.ObterTodosPedidosUsuario(IdTeste);
+
+            Assert.NotNull(resultado);
+            Assert.Equal(typeof(List<PedidoResponseDTO>), resultado.GetType());
+            Assert.Equal(2, resultado.Count);
+        }
     }
 }

@@ -17,7 +17,7 @@ using Xunit.Abstractions;
 
 namespace ECommerce.Tests.PedidoItens
 {
-    public class PedidoItensService
+    public class PedidoItensServiceTest
     {
         private readonly Guid IdTeste = Guid.NewGuid();
         private UsuarioResponseDTO CriarUsuarioValido()
@@ -202,7 +202,6 @@ namespace ECommerce.Tests.PedidoItens
         {
 
             var item = CriarItemValido(Guid.NewGuid());
-            var pedidoRemove = new PedidoItemRemoveDTO() { ItemId = item.Id };
             var pedido = CriarPedidoAbertoValido();
             pedido.AdicionarNovoItem(item.Id, item.Preco, 3);
 
@@ -215,13 +214,12 @@ namespace ECommerce.Tests.PedidoItens
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
 
-            await service.RemoverItemNoPedido(pedidoRemove, IdTeste);
+            await service.RemoverItemNoPedido(item.Id, IdTeste);
         }
 
         [Fact]
         public async Task Deve_LancarErro_QuandoRemoverItemInexistenteNoPedido()
         {
-            var pedidoRemove = new PedidoItemRemoveDTO() { ItemId = IdTeste };
             var pedido = CriarPedidoAbertoValido();
 
             var mock = new Mock<IPedidosRepository>();
@@ -233,7 +231,7 @@ namespace ECommerce.Tests.PedidoItens
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
 
-            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.RemoverItemNoPedido(pedidoRemove, IdTeste));
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.RemoverItemNoPedido(IdTeste, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never);
         }
     }

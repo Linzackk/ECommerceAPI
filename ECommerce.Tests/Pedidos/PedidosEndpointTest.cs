@@ -122,6 +122,41 @@ namespace ECommerce.Tests.Pedidos
 
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
         }
-        
+
+        //[Fact]
+        //public async Task Deve_FinalizarPedido_SemErros()
+        //{
+
+        //    var usuario = CriarUsuarioValido();
+
+        //    var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
+        //    userPostResponse.EnsureSuccessStatusCode();
+        //    var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+
+        //    var pedido = CriarPedidoValido(usuarioCriado.Id);
+
+        //    var postResponse = await _client.PostAsJsonAsync(_url, pedido);
+        //    postResponse.EnsureSuccessStatusCode();
+
+        //    var pedidoCriado = await postResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
+        //    pedido
+
+        //}
+
+        //[Fact]
+        //public async Task Deve_ObterTodosPedidosDeUmUsuario_Resposta200()
+        //{
+
+        //    var usuario = CriarUsuarioValido();
+
+        //    var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
+        //    userPostResponse.EnsureSuccessStatusCode();
+        //    var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+
+        //    var pedido = CriarPedidoValido(usuarioCriado.Id);
+
+        //    var postResponse = await _client.PostAsJsonAsync(_url, pedido);
+        //    postResponse.EnsureSuccessStatusCode();
+        //}
     }
 }

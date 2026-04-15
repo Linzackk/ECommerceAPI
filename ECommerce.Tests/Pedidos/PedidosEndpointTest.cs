@@ -67,5 +67,24 @@ namespace ECommerce.Tests.Pedidos
 
             Assert.Equal(HttpStatusCode.NotFound, postResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Deve_LancarErroBadRequest_CriarPedidoComPedidoJaAberto()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
+            userPostResponse.EnsureSuccessStatusCode();
+            var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+
+            var pedido = CriarPedidoValido(usuarioCriado.Id);
+
+            var postResponse = await _client.PostAsJsonAsync(_url, pedido);
+            postResponse.EnsureSuccessStatusCode();
+            
+            var postBadRequest = await _client.PostAsJsonAsync(_url, pedido);
+
+            Assert.Equal(HttpStatusCode.BadRequest, postBadRequest.StatusCode);
+        }
     }
 }

@@ -108,6 +108,30 @@ namespace ECommerce.Tests.Pedidos
         }
 
         [Fact]
+        public async Task Deve_LancarErro_QuandoCriarPedidoComPedidoAberto()
+        {
+            var usuario = CriarUsuarioValido();
+            var pedidoInput = CriarPedidoDTOValido();
+            var pedidoFechado = CriarPedidoFechadoValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoAberto(IdTeste))
+                .ReturnsAsync(pedidoFechado);
+
+            mockUsuario.Setup(x => x.ObterUsuarioPorId(IdTeste))
+                .ReturnsAsync(usuario);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.CriarNovoPedido(pedidoInput));
+            mock.Verify(x => x.ObterPedidoAberto(It.IsAny<Guid>()), Times.Once);
+            mock.Verify(x => x.CriarNovoPedido(It.IsAny<Pedido>()), Times.Never);
+        }
+
+        [Fact]
         public async Task Deve_ObterTodosPedidos_SemErros()
         {
             var usuario = CriarUsuarioValido();

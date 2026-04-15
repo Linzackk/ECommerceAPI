@@ -198,5 +198,44 @@ namespace ECommerce.Tests.Pedidos
             await Assert.ThrowsAsync<PedidoNotFound>(() => service.ObterPedidoPorId(IdTeste));
             mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
         }
+
+        [Fact]
+        public async Task Deve_RemoverPedido_SemErros()
+        {
+            var pedidoResponse = CriarPedidoAbertoValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync(pedidoResponse);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await service.RemoverPedido(IdTeste);
+            mock.Verify(x => x.RemoverPedido(It.IsAny<Pedido>()), Times.Once);
+            mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Deve_LancarErro_QuandoRemoverPedidoInexistente()
+        {
+            var pedidoResponse = CriarPedidoAbertoValido();
+
+            var mock = new Mock<IPedidosRepository>();
+            var mockUsuario = new Mock<IUsuariosService>();
+            var mockItem = new Mock<IItemService>();
+
+            mock.Setup(x => x.ObterPedidoPorId(IdTeste))
+                .ReturnsAsync((Pedido?)null);
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            await Assert.ThrowsAsync<PedidoNotFound>(() => service.RemoverPedido(IdTeste));
+            mock.Verify(x => x.RemoverPedido(It.IsAny<Pedido>()), Times.Never);
+            mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
+        }
+
     }
 }

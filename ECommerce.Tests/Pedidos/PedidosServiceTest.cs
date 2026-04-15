@@ -81,6 +81,7 @@ namespace ECommerce.Tests.Pedidos
             Assert.NotNull(resultado);
             Assert.NotEqual(Guid.Empty, resultado.Id);
             Assert.Empty(resultado.Itens);
+            mock.Verify(x => x.CriarNovoPedido(It.IsAny<Pedido>()), Times.Once);
         }
 
         [Fact]
@@ -106,6 +107,7 @@ namespace ECommerce.Tests.Pedidos
             Assert.NotNull(resultado);
             Assert.Equal(typeof(List<PedidoResponseDTO>), resultado.GetType());
             Assert.Equal(2, resultado.Count);
+            mock.Verify(x => x.ObterPedidosPorIdUsuario(It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -129,6 +131,7 @@ namespace ECommerce.Tests.Pedidos
             var resultado = await service.ObterPedidoPorId(IdTeste);
 
             Assert.NotNull(resultado);
+            mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -146,6 +149,7 @@ namespace ECommerce.Tests.Pedidos
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
 
             await Assert.ThrowsAsync<PedidoNotFound>(() => service.ObterPedidoPorId(IdTeste));
+            mock.Verify(x => x.ObterPedidoPorId(It.IsAny<Guid>()), Times.Once);
         }
     }
 }

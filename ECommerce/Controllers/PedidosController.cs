@@ -64,8 +64,8 @@ namespace ECommerce.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{pedidoId}/Itens")]
-        public async Task<IActionResult> RemoverItemDoPedido([FromBody] PedidoItemRemoveDTO pedidoItemRemove, Guid pedidoId)
+        [HttpDelete("{pedidoId}/Itens/{pedidoItemRemove}")]
+        public async Task<IActionResult> RemoverItemDoPedido(Guid pedidoItemRemove, Guid pedidoId)
         {
             await _service.RemoverItemNoPedido(pedidoItemRemove, pedidoId);
             return NoContent();

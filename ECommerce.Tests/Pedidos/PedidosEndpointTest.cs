@@ -86,5 +86,42 @@ namespace ECommerce.Tests.Pedidos
 
             Assert.Equal(HttpStatusCode.BadRequest, postBadRequest.StatusCode);
         }
+
+        [Fact]
+        public async Task Deve_DeletarPedido_Retorno204()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
+            userPostResponse.EnsureSuccessStatusCode();
+            var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+
+            var pedido = CriarPedidoValido(usuarioCriado.Id);
+
+            var postResponse = await _client.PostAsJsonAsync(_url, pedido);
+            postResponse.EnsureSuccessStatusCode();
+
+            var pedidoCriado = await postResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
+
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{pedidoCriado.Id}");
+            deleteResponse.EnsureSuccessStatusCode();
+
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_DeletarPedidoInexistente_Retorno404()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
+            userPostResponse.EnsureSuccessStatusCode();
+            var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
+
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
+        
     }
 }

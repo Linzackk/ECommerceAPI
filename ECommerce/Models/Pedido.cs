@@ -59,7 +59,7 @@ namespace ECommerce.Models
 
             var itemExistente = ProcurarPedidoItem(itemId);
             if (itemExistente == null)
-                throw new ParametroInvalidoException("Esse item não existe no pedido.");
+                throw new PedidoItemNotFound();
 
             Itens.Remove(itemExistente);
         }

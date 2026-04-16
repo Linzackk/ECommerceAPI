@@ -129,15 +129,20 @@ namespace ECommerce.Tests.PedidoItens
             postResponse.EnsureSuccessStatusCode();
 
             var deleteResponse = await _client.DeleteAsync($"{url}/{item.Id}");
+            Assert.NotNull(deleteResponse);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
         }
 
         [Fact]
-        public async Task Deve_RemoverItemInexistenteDoPedido_Retorno400()
+        public async Task Deve_RemoverItemInexistenteDoPedido_Retorno404()
         {
             var pedido = await CriarUsuarioEPedidoNoContexto();
             var url = CriarUrl(pedido.Id);
 
             var deleteResponse = await _client.DeleteAsync($"{url}/{IdTeste}");
+
+            Assert.NotNull(deleteResponse);
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
         }
 
         [Fact]

@@ -28,6 +28,8 @@ namespace ECommerce.Models
                 throw new ParametroInvalidoException("Item já adicionado ao Pedido.");
 
             var pedidoItem = new PedidoItem(Id, itemId, quantidade, precoItem);
+            pedidoItem.SetarPedido(this);
+
             Itens.Add(pedidoItem);
         }
 

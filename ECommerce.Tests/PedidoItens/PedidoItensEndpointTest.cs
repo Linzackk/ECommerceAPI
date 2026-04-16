@@ -231,5 +231,19 @@ namespace ECommerce.Tests.PedidoItens
             Assert.NotNull(updateResponse);
             Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Deve_AtualizarItemInexistenteNoPedido_Retorno400()
+        {
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+
+            var updateItem = new PedidoItemUpdateDTO() { ItemId = IdTeste, Quantidade = 3 };
+
+            var updateResponse = await _client.PatchAsJsonAsync(url, updateItem);
+
+            Assert.NotNull(updateResponse);
+            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+        }
     }
 }

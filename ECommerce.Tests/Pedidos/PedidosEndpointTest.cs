@@ -1,6 +1,7 @@
 ﻿using ECommerce.DTOs.Itens;
 using ECommerce.DTOs.Pedidos;
 using ECommerce.DTOs.Usuarios;
+using ECommerce.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,20 +56,40 @@ namespace ECommerce.Tests.Pedidos
         }
         private async Task<PedidoResponseDTO> CriarUsuarioEPedidoNoContexto()
         {
+            var usuarioCriado = await CriarUsuarioNoContexto();
+            var pedidoCriado = await CriarPedidoNoContexto(usuarioCriado.Id);
+            return pedidoCriado;
+        }
+
+        private async Task<PedidoResponseDTO> CriarPedidoNoContexto(Guid usuarioId)
+        {
+            var pedido = CriarPedidoValido(usuarioId);
+
+            var postResponse = await _client.PostAsJsonAsync(_url, pedido);
+            postResponse.EnsureSuccessStatusCode();
+
+            var pedidoCriado = await postResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
+
+            if (pedidoCriado == null)
+                throw new Exception("Não foi possivel criar o pedido no contexto");
+
+            return pedidoCriado;
+        }
+
+        private async Task<UsuarioResponseDTO> CriarUsuarioNoContexto()
+        {
             var usuario = CriarUsuarioValido();
 
             var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
             userPostResponse.EnsureSuccessStatusCode();
             var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
 
-            var pedido = CriarPedidoValido(usuarioCriado.Id);
+            if (usuarioCriado == null)
+                throw new Exception("Não foi possivel criar o usuario no contexto");
 
-            var postResponse = await _client.PostAsJsonAsync(_url, pedido);
-            postResponse.EnsureSuccessStatusCode();
-
-            var pedidoCriado = await postResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
-            return pedidoCriado;
+            return usuarioCriado;
         }
+
         private async Task<ItemResponseDTO> CriarItemNoContexto()
         {
             var item = CriarItemValido();
@@ -171,36 +192,78 @@ namespace ECommerce.Tests.Pedidos
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
         }
 
-        //[Fact]
-        //public async Task Deve_FinalizarPedido_SemErros()
-        //{
-        //    var item = await CriarItemNoContexto();
-        //    var pedido = await CriarUsuarioEPedidoNoContexto();
-        //    var url = CriarUrl(pedido.Id);
-        //    var pedidoItem = CriarPedidoItemValido(item.Id, 1);
+        [Fact]
+        public async Task Deve_FinalizarPedido_SemErros()
+        {
+            var item = await CriarItemNoContexto();
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+            var pedidoItem = CriarPedidoItemValido(item.Id, 1);
 
-        //    var postItemResponse = await _client.PostAsJsonAsync(url, pedidoItem);
-        //    postItemResponse.EnsureSuccessStatusCode();
+            var postItemResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            postItemResponse.EnsureSuccessStatusCode();
 
-        //    var finishResponse = await _client.PatchAsync($"{_url}/{pedido.Id}", null);
-        //    finishResponse.EnsureSuccessStatusCode();
-        //    Assert.Equal(HttpStatusCode.NoContent, finishResponse.StatusCode);
-        //}
+            var finishResponse = await _client.PatchAsync($"{_url}/{pedido.Id}", null);
+            finishResponse.EnsureSuccessStatusCode();
+            Assert.Equal(HttpStatusCode.NoContent, finishResponse.StatusCode);
+        }
 
-        //[Fact]
-        //public async Task Deve_ObterTodosPedidosDeUmUsuario_Resposta200()
-        //{
+        [Fact]
+        public async Task Deve_FinalizarPedidoSemItem_Retorno400()
+        {
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var finishResponse = await _client.PatchAsync($"{_url}/{pedido.Id}", null);
 
-        //    var usuario = CriarUsuarioValido();
+            Assert.NotNull(finishResponse);
+            Assert.Equal(HttpStatusCode.BadRequest, finishResponse.StatusCode);
+        }
 
-        //    var userPostResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
-        //    userPostResponse.EnsureSuccessStatusCode();
-        //    var usuarioCriado = await userPostResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+        [Fact]
+        public async Task Deve_ObterTodosPedidosDeUmUsuario_Resposta200()
+        {
+            var usuario = await CriarUsuarioNoContexto();
 
-        //    var pedido = CriarPedidoValido(usuarioCriado.Id);
+            var pedido1 = await CriarPedidoNoContexto(usuario.Id);
+            var item = await CriarItemNoContexto();
+            var url = $"api/Pedidos/{pedido1.Id}/Itens";
+            var pedidoItem = CriarPedidoItemValido(item.Id, 1);
 
-        //    var postResponse = await _client.PostAsJsonAsync(_url, pedido);
-        //    postResponse.EnsureSuccessStatusCode();
-        //}
+            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            postResponse.EnsureSuccessStatusCode();
+
+            var finishResponse = await _client.PatchAsync($"{_url}/{pedido1.Id}", null);
+
+            var pedido2 = await CriarPedidoNoContexto(usuario.Id);
+
+            var getPedidosUsuario = await _client.GetAsync($"{_url}/{usuario.Id}");
+            getPedidosUsuario.EnsureSuccessStatusCode();
+
+            var pedidosUsuario = await getPedidosUsuario.Content.ReadFromJsonAsync < List<PedidoResponseDTO>>();
+
+            Assert.NotNull(pedidosUsuario);
+            Assert.Equal(2, pedidosUsuario.Count);
+        }
+
+        [Fact]
+        public async Task Deve_ObterPedidoExistentePeloId_Resposta200()
+        {
+            var usuario = await CriarUsuarioNoContexto();
+            var pedido = await CriarPedidoNoContexto(usuario.Id);
+
+            var getResponse = await _client.GetAsync($"{_url}/{pedido.Id}/Itens");
+            getResponse.EnsureSuccessStatusCode();
+
+            Assert.NotNull(getResponse);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_ObterPedidoInexistente_Resposta404()
+        {
+            var getResponse = await _client.GetAsync($"{_url}/{IdTeste}");
+
+            Assert.NotNull(getResponse);
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+        }
     }
 }

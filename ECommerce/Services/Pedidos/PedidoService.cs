@@ -74,6 +74,7 @@ namespace ECommerce.Services.Pedidos
 
         public async Task<IReadOnlyCollection<PedidoResponseDTO>> ObterTodosPedidosUsuario(Guid usuarioId)
         {
+            var usuario = await _usuarioService.ObterUsuarioPorId(usuarioId);
             var pedidos = await _repository.ObterPedidosPorIdUsuario(usuarioId);
             var pedidosReponse = new List<PedidoResponseDTO>();
 

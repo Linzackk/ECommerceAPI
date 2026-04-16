@@ -219,6 +219,25 @@ namespace ECommerce.Tests.Pedidos
         }
 
         [Fact]
+        public async Task Deve_FinalizarPedidoDuasVezes_Retorno400()
+        {
+            var item = await CriarItemNoContexto();
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+            var pedidoItem = CriarPedidoItemValido(item.Id, 1);
+
+            var postItemResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            postItemResponse.EnsureSuccessStatusCode();
+
+            var finishResponse = await _client.PatchAsync($"{_url}/{pedido.Id}", null);
+            finishResponse.EnsureSuccessStatusCode();
+
+            var finishResponse2 = await _client.PatchAsync($"{_url}/{pedido.Id}", null);
+            Assert.NotNull(finishResponse2);
+            Assert.Equal(HttpStatusCode.BadRequest, finishResponse2.StatusCode);
+        }
+
+        [Fact]
         public async Task Deve_ObterTodosPedidosDeUmUsuario_Resposta200()
         {
             var usuario = await CriarUsuarioNoContexto();

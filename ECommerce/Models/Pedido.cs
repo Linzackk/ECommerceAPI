@@ -81,6 +81,9 @@ namespace ECommerce.Models
             if (!Itens.Any())
                 throw new ParametroInvalidoException("Não é possível fechar o Pedido sem itens.");
 
+            if (Finalizado)
+                throw new ParametroInvalidoException("Pedido já finalizado");
+
             Finalizado = true;
         }
     }

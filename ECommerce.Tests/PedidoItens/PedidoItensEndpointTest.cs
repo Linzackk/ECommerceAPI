@@ -158,6 +158,26 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
+        public async Task Deve_RemoverItemPedidoFinalizado_Retorno400()
+        {
+            var item = await CriarItemNoContexto();
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+            var pedidoItem = CriarPedidoItemValido(item.Id, 1);
+
+            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            postResponse.EnsureSuccessStatusCode();
+
+            var urlPedido = $"api/Pedidos/{pedido.Id}";
+            var finishResponse = await _client.PatchAsync(urlPedido, null);
+            finishResponse.EnsureSuccessStatusCode();
+
+            var deleteResponse = await _client.DeleteAsync($"{url}/{item.Id}");
+            Assert.NotNull(deleteResponse);
+            Assert.Equal(HttpStatusCode.BadRequest, deleteResponse.StatusCode);
+        }
+
+        [Fact]
         public async Task Deve_RemoverItemInexistenteDoPedido_Retorno404()
         {
             var pedido = await CriarUsuarioEPedidoNoContexto();

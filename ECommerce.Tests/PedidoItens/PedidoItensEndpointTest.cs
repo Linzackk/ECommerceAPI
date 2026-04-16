@@ -210,5 +210,26 @@ namespace ECommerce.Tests.PedidoItens
             var response = await getResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
             Assert.NotNull(response);
         }
+
+        [Fact]
+        public async Task Deve_AtualizarItemNoPedidoFechado_Retorno400()
+        {
+            var item = await CriarItemNoContexto();
+            var pedido = await CriarUsuarioEPedidoNoContexto();
+            var url = CriarUrl(pedido.Id);
+            var pedidoItem = CriarPedidoItemValido(item.Id, 1);
+            var updateItem = new PedidoItemUpdateDTO() { ItemId = item.Id, Quantidade = 3 };
+
+            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            postResponse.EnsureSuccessStatusCode();
+
+            var urlPedido = $"api/Pedidos/{pedido.Id}";
+            var finishResponse = await _client.PatchAsync(urlPedido, null);
+            finishResponse.EnsureSuccessStatusCode();
+
+            var updateResponse = await _client.PatchAsJsonAsync(url, updateItem);
+            Assert.NotNull(updateResponse);
+            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+        }
     }
 }

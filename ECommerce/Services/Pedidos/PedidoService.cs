@@ -74,6 +74,7 @@ namespace ECommerce.Services.Pedidos
 
         public async Task<IReadOnlyCollection<PedidoResponseDTO>> ObterTodosPedidosUsuario(Guid usuarioId)
         {
+            var usuario = await _usuarioService.ObterUsuarioPorId(usuarioId);
             var pedidos = await _repository.ObterPedidosPorIdUsuario(usuarioId);
             var pedidosReponse = new List<PedidoResponseDTO>();
 
@@ -115,8 +116,8 @@ namespace ECommerce.Services.Pedidos
             if (item == null)
                 throw new ItemNotFoundException();
 
-            var pedidoItem = new PedidoItem(pedido.Id, item.Id, novoPedidoItem.Quantidade, item.Preco);
-            await _repository.AdicionarItemNoPedido(pedidoItem);
+            pedido.AdicionarNovoItem(item.Id, item.Preco, novoPedidoItem.Quantidade);
+            await _repository.AdicionarItemNoPedido();
         }
 
         public async Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)

@@ -28,6 +28,8 @@ namespace ECommerce.Models
                 throw new ParametroInvalidoException("Item já adicionado ao Pedido.");
 
             var pedidoItem = new PedidoItem(Id, itemId, quantidade, precoItem);
+            pedidoItem.SetarPedido(this);
+
             Itens.Add(pedidoItem);
         }
 
@@ -59,7 +61,7 @@ namespace ECommerce.Models
 
             var itemExistente = ProcurarPedidoItem(itemId);
             if (itemExistente == null)
-                throw new ParametroInvalidoException("Esse item não existe no pedido.");
+                throw new PedidoItemNotFound();
 
             Itens.Remove(itemExistente);
         }
@@ -78,6 +80,9 @@ namespace ECommerce.Models
         {
             if (!Itens.Any())
                 throw new ParametroInvalidoException("Não é possível fechar o Pedido sem itens.");
+
+            if (Finalizado)
+                throw new ParametroInvalidoException("Pedido já finalizado");
 
             Finalizado = true;
         }

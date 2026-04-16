@@ -137,7 +137,7 @@ namespace ECommerce.Tests.PedidoItens
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AdicionarItemNoPedido(item, IdTeste));
-            mock.Verify(x => x.AdicionarItemNoPedido(It.IsAny<PedidoItem>()), Times.Never);
+            mock.Verify(x => x.AdicionarItemNoPedido(), Times.Never);
         }
 
         [Fact]
@@ -231,7 +231,7 @@ namespace ECommerce.Tests.PedidoItens
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
 
-            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.RemoverItemNoPedido(IdTeste, IdTeste));
+            await Assert.ThrowsAsync<PedidoItemNotFound>(() => service.RemoverItemNoPedido(IdTeste, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never);
         }
     }

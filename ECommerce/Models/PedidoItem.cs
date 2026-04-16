@@ -26,7 +26,6 @@ namespace ECommerce.Models
             if (valorUnitario <= 0)
                 throw new ParametroInvalidoException("Valor unitário deve ser maior que 0.");
 
-            Id = Guid.NewGuid();
             IdPedido = idPedido;
             IdItem = idItem;
             Quantidade = quantidade;
@@ -44,6 +43,11 @@ namespace ECommerce.Models
         public decimal CalcularTotal()
         {
             return ValorUnitario * Quantidade;
+        }
+
+        public void SetarPedido(Pedido pedido)
+        {
+            Pedido = pedido;
         }
     }
 }

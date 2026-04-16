@@ -10,6 +10,6 @@ namespace ECommerce.Repositories.Pedidos
         Task AtualizarPedido(Pedido pedido);
         Task RemoverPedido(Pedido pedido);
         Task<Pedido?> ObterPedidoAberto(Guid idUsuario);
-        Task AdicionarItemNoPedido(PedidoItem pedidoItem);
+        Task AdicionarItemNoPedido();
     }
 }

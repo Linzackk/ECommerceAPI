@@ -88,6 +88,9 @@ namespace ECommerce.Data
             {
                 entity.HasKey(u => u.Id);
 
+                entity.Property(u => u.Id)
+                    .ValueGeneratedOnAdd();
+
                 entity.Property(u => u.IdPedido)
                     .IsRequired();
 

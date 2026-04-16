@@ -115,8 +115,8 @@ namespace ECommerce.Services.Pedidos
             if (item == null)
                 throw new ItemNotFoundException();
 
-            var pedidoItem = new PedidoItem(pedido.Id, item.Id, novoPedidoItem.Quantidade, item.Preco);
-            await _repository.AdicionarItemNoPedido(pedidoItem);
+            pedido.AdicionarNovoItem(item.Id, item.Preco, novoPedidoItem.Quantidade);
+            await _repository.AdicionarItemNoPedido();
         }
 
         public async Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)

@@ -45,7 +45,7 @@ namespace ECommerce.Repositories.Pedidos
 
         public async Task AtualizarPedido(Pedido pedido)
         {
-            _context.Update(pedido);
+            _context.Pedidos.Update(pedido);
             await _context.SaveChangesAsync();
         }
 
@@ -54,9 +54,8 @@ namespace ECommerce.Repositories.Pedidos
             var pedido = await _context.Pedidos.FirstOrDefaultAsync(p => p.IdUsuario.Equals(idUsuario) && p.Finalizado == false);
             return pedido;
         }
-        public async Task AdicionarItemNoPedido(PedidoItem pedidoItem)
+        public async Task AdicionarItemNoPedido()
         {
-            await _context.PedidosItens.AddAsync(pedidoItem);
             await _context.SaveChangesAsync();
         }
     }

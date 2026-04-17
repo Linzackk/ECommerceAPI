@@ -1,5 +1,7 @@
 ﻿using ECommerce.DTOs.Login;
 using ECommerce.DTOs.Usuarios;
+using ECommerce.Models;
+using ECommerce.Tests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +17,12 @@ namespace ECommerce.Tests.Logins
         private readonly string _urlLogin = "api/Login";
         private readonly string _urlUsuario = "api/Usuarios";
         private readonly HttpClient _client;
-        private CreateUsuarioHelper helper;
+        private UsuarioHelper usuarioHelper;
 
         public LoginEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
-            helper = new CreateUsuarioHelper(_client);
+            usuarioHelper = new UsuarioHelper(_client);
         }
         private LoginEntrarDTO CriarLoginEntrarValido(string email, string senha)
         {
@@ -43,8 +45,8 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task Deve_CriarNovoLogin_EntrarComCredenciais_Retorno200()
         {
-            var usuario = await helper.CriarUsuarioValido_NoContexto();
-            var usuarioInfos = helper.CriarUsuarioValido();
+            var usuario = await usuarioHelper.CriarUsuarioValido_NoContexto();
+            var usuarioInfos = usuarioHelper.CriarUsuarioValido();
 
             var loginEntrar = CriarLoginEntrarValido(usuarioInfos.Email, usuarioInfos.Senha);
 
@@ -62,7 +64,7 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task Deve_CriarNovoLogin_EntrarComCredenciaisInvalidas_Retorno400()
         {
-            var usuario = await helper.CriarUsuarioValido_NoContexto();
+            var usuario = await usuarioHelper.CriarUsuarioValido_NoContexto();
             var loginEntrar = CriarLoginEntrarInvalido();
 
             var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);

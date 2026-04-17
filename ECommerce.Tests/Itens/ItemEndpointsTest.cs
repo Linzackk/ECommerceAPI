@@ -1,4 +1,5 @@
 ﻿using ECommerce.DTOs.Itens;
+using ECommerce.Tests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,38 +15,18 @@ namespace ECommerce.Tests.Itens
         private readonly string _url = "api/itens";
         private readonly HttpClient _client;
         private readonly Guid IdTeste = Guid.NewGuid();
+        private readonly ItemHelper itemHelper;
 
         public ItemEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
-        }
-
-        private ItemCreateDTO CriarItemValido()
-        {
-            return new ItemCreateDTO()
-            {
-                Nome = "Escova de Cabelo",
-                Descricao = "Para escovar cabelos, feita de plástico",
-                Estoque = 7,
-                Preco = 8.95M
-            };
-        }
-
-        private ItemCreateDTO CriarItemInvalido()
-        {
-            return new ItemCreateDTO()
-            {
-                Nome = "Teste",
-                Descricao = "Teste",
-                Estoque = -5,
-                Preco = -50
-            };
+            itemHelper = new ItemHelper(_client);
         }
 
         [Fact]
         public async Task Deve_CriarNovoItem_Retorno201()
         {
-            var item = CriarItemValido();
+            var item = itemHelper.CriarItemValido();
 
             var postResponse = await _client.PostAsJsonAsync(_url, item);
             postResponse.EnsureSuccessStatusCode();
@@ -66,7 +47,7 @@ namespace ECommerce.Tests.Itens
         [Fact]
         public async Task Deve_CriarNovoItem_Retorno400()
         {
-            var item = CriarItemInvalido();
+            var item = itemHelper.CriarItemInvalido();
             var postResponse = await _client.PostAsJsonAsync(_url, item);
 
             Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
@@ -75,12 +56,8 @@ namespace ECommerce.Tests.Itens
         [Fact]
         public async Task Deve_CriarItem_BuscarItemRetorno200()
         {
-            var item = CriarItemValido();
-
-            var postResponse = await _client.PostAsJsonAsync(_url, item);
-            postResponse.EnsureSuccessStatusCode();
-
-            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
             var getResponse = await _client.GetAsync($"{_url}/{itemCriado.Id}");
             getResponse.EnsureSuccessStatusCode();
@@ -106,12 +83,8 @@ namespace ECommerce.Tests.Itens
         [Fact]
         public async Task Deve_AtualizarItemCorretamente_Retorno204()
         {
-            var item = CriarItemValido();
-
-            var postResponse = await _client.PostAsJsonAsync(_url, item);
-            postResponse.EnsureSuccessStatusCode();
-
-            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
             var atualizacao = new ItemUpdateDTO() { Preco = 9.85M };
 
@@ -137,12 +110,8 @@ namespace ECommerce.Tests.Itens
         [Fact]
         public async Task Deve_AtualizarItem_LancarExcecaoComInformacoesVazias()
         {
-            var item = CriarItemValido();
-
-            var postResponse = await _client.PostAsJsonAsync(_url, item);
-            postResponse.EnsureSuccessStatusCode();
-
-            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
             var atualizacao = new ItemUpdateDTO();
 
@@ -153,12 +122,8 @@ namespace ECommerce.Tests.Itens
         [Fact]
         public async Task Deve_RemoverItemExistente_Retorno204()
         {
-            var item = CriarItemValido();
-
-            var postResponse = await _client.PostAsJsonAsync(_url, item);
-            postResponse.EnsureSuccessStatusCode();
-
-            var itemCriado = await postResponse.Content.ReadFromJsonAsync<ItemResponseDTO>();
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
             var deleteResponse = await _client.DeleteAsync($"{_url}/{itemCriado.Id}");
             deleteResponse.EnsureSuccessStatusCode();

@@ -65,7 +65,8 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task Deve_CriarNovoLogin_EntrarComCredenciaisInvalidas_Retorno400()
         {
-            var usuario = await usuarioHelper.CriarUsuarioValido_NoContexto();
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
             var loginEntrar = CriarLoginEntrarInvalido();
 
             var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);

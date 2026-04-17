@@ -51,6 +51,21 @@ namespace ECommerce.Tests.Usuarios
             };
         }
 
+        public async Task<UsuarioResponseDTO> CriarUsuarioValido_NoContexto()
+        {
+            var usuario = CriarUsuarioValido();
+
+            var postResponse = await _client.PostAsJsonAsync(_url, usuario);
+            postResponse.EnsureSuccessStatusCode();
+
+            var usuarioCriado = await postResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+
+            if (usuarioCriado == null)
+                throw new Exception("Não foi possivel criar o usuario.");
+
+            return usuarioCriado;
+        }
+
         [Fact]
         public async Task Deve_CriarNovoUsuario_Retorno201RespostaValida()
         {
@@ -94,13 +109,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_ProcurarUsuarioExistente_Retorno200()
         {
-            var usuario = CriarUsuarioValido();
-
-            var response = await _client.PostAsJsonAsync(_url, usuario);
-            response.EnsureSuccessStatusCode();
-
-            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
-            Assert.NotNull(usuarioCriado);
+            var usuarioCriado = await CriarUsuarioValido_NoContexto();
 
             var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
             Assert.Equal(HttpStatusCode.OK, responseProcura.StatusCode);
@@ -114,13 +123,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesValidas_Retorno204()
         {
-            var usuario = CriarUsuarioValido();
-
-            var response = await _client.PostAsJsonAsync(_url, usuario);
-            response.EnsureSuccessStatusCode();
-
-            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
-            Assert.NotNull(usuarioCriado);
+            var usuarioCriado = await CriarUsuarioValido_NoContexto();
 
             var infoUpdate = new UsuarioUpdateDTO()
             {
@@ -135,13 +138,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_AtualizarUsuarioExistente_VerificarInformacoesAtualizadas()
         {
-            var usuario = CriarUsuarioValido();
-
-            var response = await _client.PostAsJsonAsync(_url, usuario);
-            response.EnsureSuccessStatusCode();
-
-            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
-            Assert.NotNull(usuarioCriado);
+            var usuarioCriado = await CriarUsuarioValido_NoContexto();
 
             var infoUpdate = new UsuarioUpdateDTO()
             {
@@ -153,7 +150,7 @@ namespace ECommerce.Tests.Usuarios
             responseUpdate.EnsureSuccessStatusCode();
 
             var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
-            response.EnsureSuccessStatusCode();
+            responseProcura.EnsureSuccessStatusCode();
 
             var usuarioAtualizado = await responseProcura.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
             Assert.NotNull(usuarioCriado);
@@ -165,13 +162,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesInvalidas_Retorno400()
         {
-            var usuario = CriarUsuarioValido();
-
-            var response = await _client.PostAsJsonAsync(_url, usuario);
-            response.EnsureSuccessStatusCode();
-
-            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
-            Assert.NotNull(usuarioCriado);
+            var usuarioCriado = await CriarUsuarioValido_NoContexto();
 
             var infoUpdate = new UsuarioUpdateDTO()
             {
@@ -187,13 +178,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_DeletarUsuarioExistente_Retorno204()
         {
-            var usuario = CriarUsuarioValido();
-
-            var response = await _client.PostAsJsonAsync(_url, usuario);
-            response.EnsureSuccessStatusCode();
-
-            var usuarioCriado = await response.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
-            Assert.NotNull(usuarioCriado);
+            var usuarioCriado = await CriarUsuarioValido_NoContexto();
 
             var deleteResponse = await _client.DeleteAsync($"{_url}/{usuarioCriado.Id}");
             Assert.NotNull(deleteResponse);

@@ -12,12 +12,11 @@ namespace ECommerce.Tests
     public class CreateUsuarioHelper
     {
         private readonly HttpClient _client;
-        public readonly string _url;
+        public readonly string _url = "api/Usuarios";
 
-        public CreateUsuarioHelper(HttpClient client, string url)
+        public CreateUsuarioHelper(HttpClient client)
         {
-            _client = client;
-            _url = url;
+            _client = client;            
         }
         public UsuarioCreateDTO CriarUsuarioValido()
         {

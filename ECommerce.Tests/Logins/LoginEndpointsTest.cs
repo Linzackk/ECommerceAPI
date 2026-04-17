@@ -15,34 +15,19 @@ namespace ECommerce.Tests.Logins
         private readonly string _urlLogin = "api/Login";
         private readonly string _urlUsuario = "api/Usuarios";
         private readonly HttpClient _client;
+        private CreateUsuarioHelper helper;
 
         public LoginEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
+            helper = new CreateUsuarioHelper(_client);
         }
-
-        private UsuarioCreateDTO CriarUsuarioValido()
-        {
-            return new UsuarioCreateDTO()
-            {
-                Nome = "Nome Teste",
-                Email = "email@email.com",
-                Cpf = "12121212121",
-                Telefone = "11999999999",
-                Cep = "00000000",
-                Cidade = "SP",
-                Rua = "Rua do Teste",
-                NumeroCasa = "400",
-                Senha = "senhaTeste"
-            };
-        }
-
-        private LoginEntrarDTO CriarLoginEntrarValido()
+        private LoginEntrarDTO CriarLoginEntrarValido(string email, string senha)
         {
             return new LoginEntrarDTO()
             {
-                Email = "email@email.com",
-                Senha = "senhaTeste"
+                Email = email,
+                Senha = senha
             };
         }
 
@@ -50,7 +35,7 @@ namespace ECommerce.Tests.Logins
         {
             return new LoginEntrarDTO()
             {
-                Email = "Email@Invalido.com",
+                Email = "qualquerCoisaAi@Invalido.com",
                 Senha = "Senha Incorreta"
             };
         }
@@ -58,11 +43,10 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task Deve_CriarNovoLogin_EntrarComCredenciais_Retorno200()
         {
-            var usuario = CriarUsuarioValido();
-            var loginEntrar = CriarLoginEntrarValido();
+            var usuario = await helper.CriarUsuarioValido_NoContexto();
+            var usuarioInfos = helper.CriarUsuarioValido();
 
-            var postResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
-            postResponse.EnsureSuccessStatusCode();
+            var loginEntrar = CriarLoginEntrarValido(usuarioInfos.Email, usuarioInfos.Senha);
 
             var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);
             loginPostResponse.EnsureSuccessStatusCode();
@@ -78,11 +62,8 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task Deve_CriarNovoLogin_EntrarComCredenciaisInvalidas_Retorno400()
         {
-            var usuario = CriarUsuarioValido();
+            var usuario = await helper.CriarUsuarioValido_NoContexto();
             var loginEntrar = CriarLoginEntrarInvalido();
-
-            var postResponse = await _client.PostAsJsonAsync(_urlUsuario, usuario);
-            postResponse.EnsureSuccessStatusCode();
 
             var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);
 

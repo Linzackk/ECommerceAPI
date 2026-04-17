@@ -21,7 +21,7 @@ namespace ECommerce.Tests.Usuarios
         public UsuarioEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
-            helper = new CreateUsuarioHelper(_client, _url);
+            helper = new CreateUsuarioHelper(_client);
         }
 
         [Fact]

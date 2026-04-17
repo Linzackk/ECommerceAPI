@@ -7,14 +7,14 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerce.Tests
+namespace ECommerce.Tests.Helpers
 {
-    public class CreateUsuarioHelper
+    public class UsuarioHelper
     {
         private readonly HttpClient _client;
         public readonly string _url = "api/Usuarios";
 
-        public CreateUsuarioHelper(HttpClient client)
+        public UsuarioHelper(HttpClient client)
         {
             _client = client;            
         }
@@ -47,10 +47,8 @@ namespace ECommerce.Tests
                 NumeroCasa = "400"
             };
         }
-        public async Task<UsuarioResponseDTO> CriarUsuarioValido_NoContexto()
+        public async Task<UsuarioResponseDTO> CriarUsuarioValido_NoContexto(UsuarioCreateDTO usuario)
         {
-            var usuario = CriarUsuarioValido();
-
             var postResponse = await _client.PostAsJsonAsync(_url, usuario);
             postResponse.EnsureSuccessStatusCode();
 

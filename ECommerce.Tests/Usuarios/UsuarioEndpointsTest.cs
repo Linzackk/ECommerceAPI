@@ -1,4 +1,5 @@
 ﻿using ECommerce.DTOs.Usuarios;
+using ECommerce.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System;
@@ -15,13 +16,13 @@ namespace ECommerce.Tests.Usuarios
     {
         private readonly string _url = "api/Usuarios";
         private readonly HttpClient _client;
-        private CreateUsuarioHelper helper;
+        private UsuarioHelper helper;
         private readonly Guid IdTeste = Guid.NewGuid();
 
         public UsuarioEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
-            helper = new CreateUsuarioHelper(_client);
+            helper = new UsuarioHelper(_client);
         }
 
         [Fact]
@@ -58,7 +59,8 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_ProcurarUsuarioExistente_Retorno200()
         {
-            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto();
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
             var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
             Assert.Equal(HttpStatusCode.OK, responseProcura.StatusCode);
@@ -80,7 +82,8 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesValidas_Retorno204()
         {
-            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto();
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
             var infoUpdate = new UsuarioUpdateDTO()
             {
@@ -95,7 +98,8 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_AtualizarUsuarioExistente_VerificarInformacoesAtualizadas()
         {
-            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto();
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
             var infoUpdate = new UsuarioUpdateDTO()
             {
@@ -119,7 +123,8 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesInvalidas_Retorno400()
         {
-            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto();
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
             var infoUpdate = new UsuarioUpdateDTO()
             {
@@ -135,7 +140,8 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_DeletarUsuarioExistente_Retorno204()
         {
-            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto();
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
             var deleteResponse = await _client.DeleteAsync($"{_url}/{usuarioCriado.Id}");
             Assert.NotNull(deleteResponse);

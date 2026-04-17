@@ -45,7 +45,8 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task Deve_CriarNovoLogin_EntrarComCredenciais_Retorno200()
         {
-            var usuario = await usuarioHelper.CriarUsuarioValido_NoContexto();
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
             var usuarioInfos = usuarioHelper.CriarUsuarioValido();
 
             var loginEntrar = CriarLoginEntrarValido(usuarioInfos.Email, usuarioInfos.Senha);

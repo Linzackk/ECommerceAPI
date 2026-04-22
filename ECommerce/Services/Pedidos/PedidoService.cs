@@ -88,7 +88,7 @@ namespace ECommerce.Services.Pedidos
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
 
-            // Deletar todos PedidoItem que contenham o ID do Pedido
+            // TODO: Deletar todos PedidoItem que contenham o ID do Pedido
             await _repository.RemoverPedido(pedido);
         }
 
@@ -112,9 +112,11 @@ namespace ECommerce.Services.Pedidos
         public async Task AdicionarItemNoPedido(PedidoItemCreateDTO novoPedidoItem, Guid pedidoId)
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
-            var item = await _itemService.ObterItemPorId(novoPedidoItem.ItemId);
+            var item = await _itemService.ObterPorId(novoPedidoItem.ItemId);
             if (item == null)
                 throw new ItemNotFoundException();
+
+            item.ReduzirEstoque(novoPedidoItem.Quantidade);
 
             pedido.AdicionarNovoItem(item.Id, item.Preco, novoPedidoItem.Quantidade);
             await _repository.AdicionarItemNoPedido();
@@ -123,7 +125,18 @@ namespace ECommerce.Services.Pedidos
         public async Task AtualizarItemNoPedido(PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
-            pedido.AtualizarItem(pedidoItemAtualizado.ItemId, pedidoItemAtualizado.Quantidade);
+            var item = await _itemService.ObterPorId(pedidoItemAtualizado.ItemId);
+            if (item == null)
+                throw new ItemNotFoundException();
+
+            var diferenca = pedido.AtualizarItem(pedidoItemAtualizado.ItemId, pedidoItemAtualizado.Quantidade);
+            if (diferenca == 0)
+                return;
+
+            if (diferenca < 0)
+                item.ReduzirEstoque(Math.Abs(diferenca));
+            else
+                item.AumentarEstoque(Math.Abs(diferenca));
 
             await _repository.AtualizarPedido(pedido);
         }
@@ -131,7 +144,13 @@ namespace ECommerce.Services.Pedidos
         public async Task RemoverItemNoPedido(Guid pedidoItemRemove, Guid pedidoId)
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
-            pedido.RemoverItem(pedidoItemRemove);
+            var pedidoItem = pedido.RemoverItem(pedidoItemRemove);
+
+            var item = await _itemService.ObterPorId(pedidoItem.IdItem);
+            if (item == null)
+                throw new ItemNotFoundException();
+
+            item.AumentarEstoque(pedidoItem.Quantidade);
 
             await _repository.AtualizarPedido(pedido);
         }

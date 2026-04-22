@@ -60,7 +60,20 @@ namespace ECommerce.Tests.Helpers
             return usuarioCriado;
         }
 
-        public async Task<HttpResponseMessage> AtualizarUsuario(UsuarioUpdateDTO atualizacao, Guid idUsuario)
+        public UsuarioUpdateDTO CriarAtualizacaoValida()
+        {
+            return new UsuarioUpdateDTO()
+            {
+                Nome = "Novo Nome Teste",
+                NumeroCasa = "300",
+                Cep = "01234567",
+                Cidade = "Cidade Lá",
+                Rua = "Rua Lá",
+                Telefone = "11987654321"
+            };
+        }
+
+        public async Task<HttpResponseMessage> AtualizarUsuario_NoContexto(UsuarioUpdateDTO atualizacao, Guid idUsuario)
         {
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{idUsuario}", atualizacao);
             patchResponse.EnsureSuccessStatusCode();
@@ -68,7 +81,7 @@ namespace ECommerce.Tests.Helpers
             return patchResponse;
         }
 
-        public async Task<UsuarioResponseDTO> ObterUsuario(Guid idUsuario)
+        public async Task<UsuarioResponseDTO> ObterUsuario_NoContexto(Guid idUsuario)
         {
             var getResponse = await _client.GetAsync($"{_url}/{idUsuario}");
             getResponse.EnsureSuccessStatusCode();
@@ -80,7 +93,7 @@ namespace ECommerce.Tests.Helpers
             return usuario;
         }
 
-        public async Task<HttpResponseMessage> DeletarUsuario(Guid idUsuario)
+        public async Task<HttpResponseMessage> DeletarUsuario_NoContexto(Guid idUsuario)
         {
             var deleteResponse = await _client.DeleteAsync($"{_url}/{idUsuario}");
             deleteResponse.EnsureSuccessStatusCode();

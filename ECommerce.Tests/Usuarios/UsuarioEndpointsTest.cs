@@ -85,11 +85,7 @@ namespace ECommerce.Tests.Usuarios
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
-            var infoUpdate = new UsuarioUpdateDTO()
-            {
-                Nome = "Novo Nome Teste",
-                NumeroCasa = "300"
-            };
+            var infoUpdate = helper.CriarAtualizacaoValida();
 
             var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
             responseUpdate.EnsureSuccessStatusCode();

@@ -59,5 +59,33 @@ namespace ECommerce.Tests.Helpers
 
             return usuarioCriado;
         }
+
+        public async Task<HttpResponseMessage> AtualizarUsuario(UsuarioUpdateDTO atualizacao, Guid idUsuario)
+        {
+            var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{idUsuario}", atualizacao);
+            patchResponse.EnsureSuccessStatusCode();
+
+            return patchResponse;
+        }
+
+        public async Task<UsuarioResponseDTO> ObterUsuario(Guid idUsuario)
+        {
+            var getResponse = await _client.GetAsync($"{_url}/{idUsuario}");
+            getResponse.EnsureSuccessStatusCode();
+
+            var usuario = await getResponse.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
+            if (usuario == null)
+                throw new Exception("Não foi possivel buscar o usuário.");
+
+            return usuario;
+        }
+
+        public async Task<HttpResponseMessage> DeletarUsuario(Guid idUsuario)
+        {
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{idUsuario}");
+            deleteResponse.EnsureSuccessStatusCode();
+
+            return deleteResponse;
+        }
     }
 }

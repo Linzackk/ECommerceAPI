@@ -225,7 +225,7 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
-        public async Task Deve_AtualizarItemInexistenteNoPedido_Retorno400()
+        public async Task Deve_AtualizarItemInexistenteNoPedido_Retorno404()
         {
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
@@ -239,7 +239,7 @@ namespace ECommerce.Tests.PedidoItens
             var updateResponse = await _client.PatchAsJsonAsync(url, pedidoItem);
 
             Assert.NotNull(updateResponse);
-            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, updateResponse.StatusCode);
         }
     }
 }

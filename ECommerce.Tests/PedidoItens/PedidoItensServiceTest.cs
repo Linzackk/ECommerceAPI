@@ -42,7 +42,7 @@ namespace ECommerce.Tests.PedidoItens
         {
             var pedido = new Pedido(IdTeste);
             var id = Guid.NewGuid();
-            AdicionarItemAoPedido(pedido, CriarItemValido(Guid.NewGuid()), 1);
+            AdicionarItemAoPedido(pedido, CriarItemValido(), 1);
             pedido.FinalizarPedido();
             return pedido;
         }
@@ -65,9 +65,9 @@ namespace ECommerce.Tests.PedidoItens
             };
         }
 
-        private Item CriarItemValido(Guid itemId)
+        private Item CriarItemValido()
         {
-            return new Item("Teste", "Teste", 5, 8.95M);
+            return new Item("Teste", "Teste", 500, 8.95M);
         }
 
         private ItemResponseDTO CriarResponseItemValido()
@@ -97,7 +97,7 @@ namespace ECommerce.Tests.PedidoItens
         public async Task Deve_AdicionarItemAoPedido_SemErros()
         {
             var item = CriarItemCreateDTOValido(IdTeste);
-            var itemResponse = CriarResponseItemValido();
+            var itemResponse = CriarItemValido();
             var pedido = CriarPedidoAbertoValido();
             var pedidoItem = CriarPedidoItemCreateValido();
 
@@ -108,7 +108,7 @@ namespace ECommerce.Tests.PedidoItens
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
 
-            mockItem.Setup(x => x.ObterItemPorId(IdTeste))
+            mockItem.Setup(x => x.ObterPorId(IdTeste))
                 .ReturnsAsync(itemResponse);
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
@@ -120,7 +120,7 @@ namespace ECommerce.Tests.PedidoItens
         public async Task Deve_LancarErro_AdicionarItemInvalidoAoPedido()
         {
             var item = CriarItemCreateDTOInvalido(IdTeste);
-            var itemResponse = CriarResponseItemValido();
+            var itemResponse = CriarItemValido();
             var pedido = CriarPedidoAbertoValido();
             var pedidoItem = CriarPedidoItemCreateValido();
 
@@ -131,7 +131,7 @@ namespace ECommerce.Tests.PedidoItens
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
 
-            mockItem.Setup(x => x.ObterItemPorId(IdTeste))
+            mockItem.Setup(x => x.ObterPorId(IdTeste))
                 .ReturnsAsync(itemResponse);
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
@@ -143,7 +143,7 @@ namespace ECommerce.Tests.PedidoItens
         [Fact]
         public async Task Deve_AtualizarItemNoPedido_SemErros()
         {
-            var item = CriarItemValido(Guid.NewGuid());
+            var item = CriarItemValido();
             var itemUpdate = new PedidoItemUpdateDTO() { ItemId = item.Id, Quantidade = 5 };
             var pedido = CriarPedidoAbertoValido();
             pedido.AdicionarNovoItem(item.Id, item.Preco, 3);
@@ -154,6 +154,9 @@ namespace ECommerce.Tests.PedidoItens
 
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
+
+            mockItem.Setup(x => x.ObterPorId(item.Id))
+                .ReturnsAsync(item);
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
             await service.AtualizarItemNoPedido(itemUpdate, IdTeste);
@@ -173,14 +176,14 @@ namespace ECommerce.Tests.PedidoItens
                 .ReturnsAsync(pedido);
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
-            await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
+            await Assert.ThrowsAsync<ItemNotFoundException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never());
         }
 
         [Fact]
         public async Task Deve_LancarErro_QuandoQuantidadeForInvalida()
         {
-            var item = CriarItemValido(Guid.NewGuid());
+            var item = CriarItemValido();
             var itemUpdate = new PedidoItemUpdateDTO() { ItemId = item.Id, Quantidade = -1 };
             var pedido = CriarPedidoAbertoValido();
             pedido.AdicionarNovoItem(item.Id, item.Preco, 3);
@@ -192,6 +195,9 @@ namespace ECommerce.Tests.PedidoItens
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
 
+            mockItem.Setup(x => x.ObterPorId(item.Id))
+                .ReturnsAsync(item);
+            
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never());
@@ -201,7 +207,7 @@ namespace ECommerce.Tests.PedidoItens
         public async Task Deve_RemoverItemDoPedido_SemErro()
         {
 
-            var item = CriarItemValido(Guid.NewGuid());
+            var item = CriarItemValido();
             var pedido = CriarPedidoAbertoValido();
             pedido.AdicionarNovoItem(item.Id, item.Preco, 3);
 
@@ -211,6 +217,9 @@ namespace ECommerce.Tests.PedidoItens
 
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
+
+            mockItem.Setup(x => x.ObterPorId(item.Id))
+                .ReturnsAsync(item);
 
             var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
 

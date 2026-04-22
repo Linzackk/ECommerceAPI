@@ -65,20 +65,33 @@ namespace ECommerce.Tests.Pedidos
         [Fact]
         public async Task Deve_DeletarPedido_Retorno204()
         {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
 
-            var postResponse = await _client.PostAsJsonAsync(_url, pedido);
-            postResponse.EnsureSuccessStatusCode();
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
 
-            var pedidoCriado = await postResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
 
             var deleteResponse = await _client.DeleteAsync($"{_url}/{pedidoCriado.Id}");
             deleteResponse.EnsureSuccessStatusCode();
 
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+            Assert.Equal(itemAtualizado.Estoque, itemCriado.Estoque);
+
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_DeletarPedido_EstoqueItensAumentado_Retorno204()
+        {
+
         }
 
         [Fact]

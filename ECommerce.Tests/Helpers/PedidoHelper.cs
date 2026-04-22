@@ -36,7 +36,7 @@ namespace ECommerce.Tests.Helpers
         {
             return $"api/Pedidos/{id}/Itens";
         }
-        public async Task<PedidoResponseDTO> CriarPedidoNoContexto(PedidoCreateDTO novoPedido)
+        public async Task<PedidoResponseDTO> CriarPedido_NoContexto(PedidoCreateDTO novoPedido)
         {
             var postResponse = await _client.PostAsJsonAsync(_url, novoPedido);
             if (!postResponse.IsSuccessStatusCode)

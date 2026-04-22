@@ -25,12 +25,21 @@ namespace ECommerce.Tests.Helpers
                 Quantidade = quantidade
             };
         }
-
+        public PedidoItemUpdateDTO CriarPedidoItemAtualizacaoValida(Guid itemId, int quantidade)
+        {
+            return new PedidoItemUpdateDTO()
+            {
+                ItemId = itemId,
+                Quantidade = quantidade
+            };
+        }
         public async Task CriarPedidoItem_NoContexto(PedidoItemCreateDTO novoPedidoItem, string url)
         {
             var postResponse = await _client.PostAsJsonAsync(url, novoPedidoItem);
             if (!postResponse.IsSuccessStatusCode)
                 throw new Exception("Não foi possível adicionar o PedidoItem no Contexto.");
         }
+
+        
     }
 }

@@ -16,11 +16,17 @@ namespace ECommerce.Tests.Itens
         private readonly HttpClient _client;
         private readonly Guid IdTeste = Guid.NewGuid();
         private readonly ItemHelper itemHelper;
+        private readonly UsuarioHelper usuarioHelper;
+        private readonly PedidoHelper pedidoHelper;
+        private readonly PedidoItemHelper pedidoItemHelper;
 
         public ItemEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
             itemHelper = new ItemHelper(_client);
+            usuarioHelper = new UsuarioHelper(_client);
+            pedidoHelper = new PedidoHelper(_client);
+            pedidoItemHelper = new PedidoItemHelper(_client);
         }
 
         [Fact]
@@ -134,10 +140,64 @@ namespace ECommerce.Tests.Itens
         }
 
         [Fact]
-        public async Task Deve_RemoverItemInexistente_LancarErroNotFound()
+        public async Task Deve_RemoverItemInexistente_Retorno404()
         {
             var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarCorretamenteEstoqueDoItem_AoAdicionarItemAUmpedido()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
+
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+
+            int estoqueAtualizado = itemCriado.Estoque - pedidoItem.Quantidade;
+
+            Assert.NotEqual(itemCriado.Estoque, itemAtualizado.Estoque);
+            Assert.Equal(itemAtualizado.Estoque, estoqueAtualizado);
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarCorretamenteEstoqueDoItem_AoAtualizarQuantidadeDePedidoItem()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 5);
+
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
+
+            var pedidoAtualizado = pedidoItemHelper.CriarPedidoItemAtualizacaoValida(itemCriado.Id, 3);
+
+            await pedidoItemHelper.AtualizarPedidoItem_NoContexto(pedidoAtualizado, pedidoCriado.Id);
+
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+
+            int estoqueAtualizado = itemCriado.Estoque - pedidoAtualizado.Quantidade;
+
+            Assert.NotEqual(itemCriado.Estoque, itemAtualizado.Estoque);
+            Assert.Equal(itemAtualizado.Estoque, estoqueAtualizado);
         }
     }
 }

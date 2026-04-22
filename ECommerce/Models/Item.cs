@@ -56,6 +56,8 @@ namespace ECommerce.Models
 
             if (Estoque < valorReduzido)
                 throw new EstoqueInsuficienteException(Nome);
+
+            Estoque -= valorReduzido;
         }
     }
 }

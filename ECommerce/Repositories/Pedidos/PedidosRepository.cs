@@ -58,5 +58,11 @@ namespace ECommerce.Repositories.Pedidos
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task RemoverPedidoItens(List<PedidoItem> pedidosItens)
+        {
+            _context.PedidosItens.RemoveRange(pedidosItens);
+            await _context.SaveChangesAsync();
+        }
     }
 }

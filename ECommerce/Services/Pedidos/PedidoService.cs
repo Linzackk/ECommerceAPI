@@ -87,8 +87,14 @@ namespace ECommerce.Services.Pedidos
         public async Task RemoverPedido(Guid pedidoId)
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
-
-            // TODO: Deletar todos PedidoItem que contenham o ID do Pedido
+            List<PedidoItem> pedidoItems = new();
+            foreach(var pi in pedido.Itens)
+            {
+                var item = await _itemService.ObterPorId(pi.IdItem);
+                item.AumentarEstoque(pi.Quantidade);
+                pedidoItems.Add(pi);
+            }
+            await _repository.RemoverPedidoItens(pedidoItems);
             await _repository.RemoverPedido(pedido);
         }
 

@@ -44,7 +44,7 @@ namespace ECommerce.Models
                 throw new ParametroInvalidoException("Não é possivel alterar o pedido, ele já foi fechado.");
         }
 
-        public void AtualizarItem(Guid itemId, int quantidade)
+        public int AtualizarItem(Guid itemId, int quantidade)
         {
             ValidarPedidoAlteravel();
 
@@ -52,10 +52,16 @@ namespace ECommerce.Models
             if (itemExistente == null)
                 throw new ParametroInvalidoException("Esse item não existe no pedido.");
 
+            var diferenca = itemExistente.Quantidade - quantidade;
+            if (diferenca == 0)
+                return 0;
+
             itemExistente.DefinirQuantidade(quantidade);
+
+            return diferenca;
         }
 
-        public void RemoverItem(Guid itemId)
+        public PedidoItem RemoverItem(Guid itemId)
         {
             ValidarPedidoAlteravel();
 
@@ -64,6 +70,7 @@ namespace ECommerce.Models
                 throw new PedidoItemNotFound();
 
             Itens.Remove(itemExistente);
+            return itemExistente;
         }
 
         public decimal CalcularTotal()

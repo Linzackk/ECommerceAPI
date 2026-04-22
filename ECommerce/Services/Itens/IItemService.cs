@@ -5,6 +5,7 @@ namespace ECommerce.Services.Itens
 {
     public interface IItemService
     {
+        public Task<Item> ObterPorId(Guid id);
         public Task<ItemResponseDTO> CriarNovoItem(ItemCreateDTO novoItem);
         public Task<ItemResponseDTO> ObterItemPorId(Guid itemId);
         public Task AtualizarItem(ItemUpdateDTO itemAtualizado, Guid itemId);

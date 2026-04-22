@@ -11,5 +11,6 @@ namespace ECommerce.Repositories.Pedidos
         Task RemoverPedido(Pedido pedido);
         Task<Pedido?> ObterPedidoAberto(Guid idUsuario);
         Task AdicionarItemNoPedido();
+        Task RemoverPedidoItens(List<PedidoItem> pedidoItens);
     }
 }

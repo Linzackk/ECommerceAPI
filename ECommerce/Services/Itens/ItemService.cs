@@ -36,7 +36,7 @@ namespace ECommerce.Services.Itens
             };
         }
 
-        private async Task<Item> ObterPorId(Guid id)
+        public async Task<Item> ObterPorId(Guid id)
         {
             var item = await _repository.ObterItemPorId(id);
             if (item == null)

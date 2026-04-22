@@ -109,6 +109,28 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
+        public async Task Deve_AdicionarPedidoItemComQuantidadeAcimaEstoqueItem_Retorno400()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 15);
+
+            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            Assert.Equal(postResponse.StatusCode, HttpStatusCode.BadRequest);
+
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+            Assert.Equal(itemCriado.Estoque, itemAtualizado.Estoque);
+        }
+
+        [Fact]
         public async Task Deve_RemoverItemDoPedido_Retorno200()
         {
             var item = itemHelper.CriarItemValido();
@@ -199,6 +221,33 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
+        public async Task Deve_AtualizarQuantidadePedidoItem_ItemSemEstoque_Retorno400()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
+
+            var updateItem = pedidoItemHelper.CriarPedidoItemAtualizacaoValida(itemCriado.Id, 12);
+
+            var patchResponse = await _client.PatchAsJsonAsync(url, updateItem);
+            Assert.Equal(patchResponse.StatusCode, HttpStatusCode.BadRequest);
+
+            var estoqueAtualizado = itemCriado.Estoque - pedidoItem.Quantidade;
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+            Assert.Equal(itemAtualizado.Estoque, estoqueAtualizado);
+        }
+
+        [Fact]
         public async Task Deve_AtualizarItemNoPedidoFechado_Retorno400()
         {
             var item = itemHelper.CriarItemValido();
@@ -225,7 +274,7 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
-        public async Task Deve_AtualizarItemInexistenteNoPedido_Retorno400()
+        public async Task Deve_AtualizarItemInexistenteNoPedido_Retorno404()
         {
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
@@ -239,7 +288,62 @@ namespace ECommerce.Tests.PedidoItens
             var updateResponse = await _client.PatchAsJsonAsync(url, pedidoItem);
 
             Assert.NotNull(updateResponse);
-            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, updateResponse.StatusCode);
+        }
+
+
+        [Fact]
+        public async Task Deve_AtualizarCorretamenteEstoqueDoItem_AoAdicionarItemAUmpedido()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
+
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+
+            int estoqueAtualizado = itemCriado.Estoque - pedidoItem.Quantidade;
+
+            Assert.NotEqual(itemCriado.Estoque, itemAtualizado.Estoque);
+            Assert.Equal(itemAtualizado.Estoque, estoqueAtualizado);
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarCorretamenteEstoqueDoItem_AoAtualizarQuantidadeDePedidoItem()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 5);
+
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
+
+            var pedidoAtualizado = pedidoItemHelper.CriarPedidoItemAtualizacaoValida(itemCriado.Id, 3);
+
+            await pedidoItemHelper.AtualizarPedidoItem_NoContexto(pedidoAtualizado, pedidoCriado.Id);
+
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+
+            int estoqueAtualizado = itemCriado.Estoque - pedidoAtualizado.Quantidade;
+
+            Assert.NotEqual(itemCriado.Estoque, itemAtualizado.Estoque);
+            Assert.Equal(itemAtualizado.Estoque, estoqueAtualizado);
         }
     }
 }

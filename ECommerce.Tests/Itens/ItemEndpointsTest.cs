@@ -16,11 +16,17 @@ namespace ECommerce.Tests.Itens
         private readonly HttpClient _client;
         private readonly Guid IdTeste = Guid.NewGuid();
         private readonly ItemHelper itemHelper;
+        private readonly UsuarioHelper usuarioHelper;
+        private readonly PedidoHelper pedidoHelper;
+        private readonly PedidoItemHelper pedidoItemHelper;
 
         public ItemEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
             itemHelper = new ItemHelper(_client);
+            usuarioHelper = new UsuarioHelper(_client);
+            pedidoHelper = new PedidoHelper(_client);
+            pedidoItemHelper = new PedidoItemHelper(_client);
         }
 
         [Fact]
@@ -134,10 +140,11 @@ namespace ECommerce.Tests.Itens
         }
 
         [Fact]
-        public async Task Deve_RemoverItemInexistente_LancarErroNotFound()
+        public async Task Deve_RemoverItemInexistente_Retorno404()
         {
             var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
         }
+
     }
 }

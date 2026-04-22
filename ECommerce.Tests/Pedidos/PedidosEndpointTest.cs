@@ -104,7 +104,7 @@ namespace ECommerce.Tests.Pedidos
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
-            var pedidoCriado = await pedidoHelper.CriarPedidoNoContexto(pedido);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
 
             var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
 
@@ -125,7 +125,7 @@ namespace ECommerce.Tests.Pedidos
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
-            var pedidoCriado = await pedidoHelper.CriarPedidoNoContexto(pedido);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
 
             var finishResponse = await _client.PatchAsync($"{_url}/{pedidoCriado.Id}", null);
 
@@ -143,7 +143,7 @@ namespace ECommerce.Tests.Pedidos
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
-            var pedidoCriado = await pedidoHelper.CriarPedidoNoContexto(pedido);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
 
             var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
 
@@ -167,7 +167,7 @@ namespace ECommerce.Tests.Pedidos
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
             var pedido1 = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
-            var pedidoCriado1 = await pedidoHelper.CriarPedidoNoContexto(pedido1);
+            var pedidoCriado1 = await pedidoHelper.CriarPedido_NoContexto(pedido1);
 
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
@@ -182,7 +182,7 @@ namespace ECommerce.Tests.Pedidos
             var finishResponse = await _client.PatchAsync($"{_url}/{pedidoCriado1.Id}", null);
 
             var pedido2 = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
-            var pedidoCriado2 = await pedidoHelper.CriarPedidoNoContexto(pedido2);
+            var pedidoCriado2 = await pedidoHelper.CriarPedido_NoContexto(pedido2);
 
             var getPedidosUsuario = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
             getPedidosUsuario.EnsureSuccessStatusCode();
@@ -200,7 +200,7 @@ namespace ECommerce.Tests.Pedidos
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
-            var pedidoCriado = await pedidoHelper.CriarPedidoNoContexto(pedido);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
 
             var getResponse = await _client.GetAsync($"{_url}/{pedidoCriado.Id}/Itens");
             getResponse.EnsureSuccessStatusCode();

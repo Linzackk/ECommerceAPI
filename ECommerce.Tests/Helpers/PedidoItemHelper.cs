@@ -39,7 +39,21 @@ namespace ECommerce.Tests.Helpers
             if (!postResponse.IsSuccessStatusCode)
                 throw new Exception("Não foi possível adicionar o PedidoItem no Contexto.");
         }
+        public async Task AtualizarPedidoItem_NoContexto(PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)
+        {
+            string url = $"api/Pedidos/{pedidoId}/Itens";
+            var patchResposne = await _client.PatchAsJsonAsync(url, pedidoItemAtualizado);
+            if (!patchResposne.IsSuccessStatusCode)
+                throw new Exception("Não foi possivel atualizar o item no pedido.");
+        }
 
+        public async Task RemoverPedidoItem_NoContexto(Guid itemId, Guid pedidoId)
+        {
+            string url = $"api/Pedidos/{pedidoId}/Itens/{itemId}";
+            var deleteResponse = await _client.DeleteAsync(url);
+            if (!deleteResponse.IsSuccessStatusCode)
+                throw new Exception("Não foi possível remover o item do pedido");
+        }
         
     }
 }

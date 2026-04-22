@@ -88,6 +88,8 @@ namespace ECommerce.Tests.Itens
 
             var atualizacao = itemHelper.CriarAtualizacaoValida();
 
+            var estoqueAtualizado = itemCriado.Estoque + atualizacao.EstoqueNovo;
+
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
             patchResponse.EnsureSuccessStatusCode();
 
@@ -101,7 +103,7 @@ namespace ECommerce.Tests.Itens
             Assert.NotNull(itemResponse);
             Assert.Equal(item.Nome, itemResponse.Nome);
             Assert.Equal(item.Descricao, itemResponse.Descricao);
-            Assert.Equal(item.Estoque, itemResponse.Estoque);
+            Assert.Equal(estoqueAtualizado, itemResponse.Estoque);
             Assert.Equal(atualizacao.Preco, itemResponse.Preco);
             Assert.NotEqual(Guid.Empty, itemResponse.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);

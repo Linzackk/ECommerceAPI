@@ -49,5 +49,32 @@ namespace ECommerce.Tests.Helpers
 
             return pedidoCriado;
         }
+
+        public async Task FinalizarPedido_NoContexto(Guid pedidoId)
+        {
+            var finishResponse = await _client.PatchAsync($"{_url}/{pedidoId}", null);
+            if (!finishResponse.IsSuccessStatusCode)
+                throw new Exception("Não foi possível finalizar o Pedido.");
+        }
+
+        public async Task<PedidoResponseDTO> ObterPedido_NoContexto(Guid pedidoId)
+        {
+            var getResponse = await _client.GetAsync($"{_url}/{pedidoId}/Itens");
+            if (!getResponse.IsSuccessStatusCode)
+                throw new Exception("Não foi possível pegar informações do Pedido.");
+
+            var pedido = await getResponse.Content.ReadFromJsonAsync<PedidoResponseDTO>();
+            return pedido;
+        }
+
+        public async Task<List<PedidoResponseDTO>> ObterPedidosDoUsuario_NoContexto(Guid usuarioId)
+        {
+            var getResponse = await _client.GetAsync($"{_url}/{usuarioId}");
+            if (!getResponse.IsSuccessStatusCode)
+                throw new Exception("Não foi possível pegar os pedidos do Usuário.");
+
+            var pedidos = await getResponse.Content.ReadFromJsonAsync<List<PedidoResponseDTO>>();
+            return pedidos;
+        }
     }
 }

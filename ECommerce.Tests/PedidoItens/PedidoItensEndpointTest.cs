@@ -109,6 +109,28 @@ namespace ECommerce.Tests.PedidoItens
         }
 
         [Fact]
+        public async Task Deve_AdicionarPedidoItemComQuantidadeAcimaEstoqueItem_Retorno400()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 15);
+
+            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
+            Assert.Equal(postResponse.StatusCode, HttpStatusCode.BadRequest);
+
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+            Assert.Equal(itemCriado.Estoque, itemAtualizado.Estoque);
+        }
+
+        [Fact]
         public async Task Deve_RemoverItemDoPedido_Retorno200()
         {
             var item = itemHelper.CriarItemValido();
@@ -196,6 +218,33 @@ namespace ECommerce.Tests.PedidoItens
             var pedidoInfos = await pedidoHelper.ObterPedido_NoContexto(pedidoCriado.Id);
 
             Assert.NotNull(pedidoInfos);
+        }
+
+        [Fact]
+        public async Task Deve_AtualizarQuantidadePedidoItem_ItemSemEstoque_Retorno400()
+        {
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
+            var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
+
+            var updateItem = pedidoItemHelper.CriarPedidoItemAtualizacaoValida(itemCriado.Id, 12);
+
+            var patchResponse = await _client.PatchAsJsonAsync(url, updateItem);
+            Assert.Equal(patchResponse.StatusCode, HttpStatusCode.BadRequest);
+
+            var estoqueAtualizado = itemCriado.Estoque - pedidoItem.Quantidade;
+            var itemAtualizado = await itemHelper.BuscarItem_NoContexto(itemCriado.Id);
+            Assert.Equal(itemAtualizado.Estoque, estoqueAtualizado);
         }
 
         [Fact]

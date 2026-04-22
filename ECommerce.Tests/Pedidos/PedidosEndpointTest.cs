@@ -22,6 +22,7 @@ namespace ECommerce.Tests.Pedidos
         private readonly PedidoHelper pedidoHelper;
         private readonly UsuarioHelper usuarioHelper;
         private readonly ItemHelper itemHelper;
+        private readonly PedidoItemHelper pedidoItemHelper;
 
         public PedidosEndpointTest(CustomWebApplicationFactory factory)
         {
@@ -29,10 +30,7 @@ namespace ECommerce.Tests.Pedidos
             pedidoHelper = new PedidoHelper(_client);
             usuarioHelper = new UsuarioHelper(_client);
             itemHelper = new ItemHelper(_client);
-        }
-        private string CriarUrl(Guid id)
-        {
-            return $"api/Pedidos/{id}/Itens";
+            pedidoItemHelper = new PedidoItemHelper(_client);
         }
 
         [Fact]
@@ -108,10 +106,8 @@ namespace ECommerce.Tests.Pedidos
 
             var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
 
-            var pedidoItem = pedidoHelper.CriarPedidoItemValido(itemCriado.Id, 1);
-            // CRIAR HELPER DE PEDIDOITEM PRA ADICIONAR AO CONTEXTO
-            var postItemResponse = await _client.PostAsJsonAsync(url, pedidoItem);
-            postItemResponse.EnsureSuccessStatusCode();
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
 
             var finishResponse = await _client.PatchAsync($"{_url}/{pedidoCriado.Id}", null);
             finishResponse.EnsureSuccessStatusCode();
@@ -147,10 +143,8 @@ namespace ECommerce.Tests.Pedidos
 
             var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
 
-            var pedidoItem = pedidoHelper.CriarPedidoItemValido(itemCriado.Id, 1);
-            // CRIAR HELPER DE PEDIDOITEM PRA ADICIONAR AO CONTEXTO
-            var postItemResponse = await _client.PostAsJsonAsync(url, pedidoItem);
-            postItemResponse.EnsureSuccessStatusCode();
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
 
             var finishResponse = await _client.PatchAsync($"{_url}/{pedidoCriado.Id}", null);
             finishResponse.EnsureSuccessStatusCode();
@@ -172,12 +166,10 @@ namespace ECommerce.Tests.Pedidos
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
-            var url = pedidoHelper.CriarUrlPedido(pedidoCriado1.Id);            
+            var url = pedidoHelper.CriarUrlPedido(pedidoCriado1.Id);
 
-            var pedidoItem = pedidoHelper.CriarPedidoItemValido(itemCriado.Id, 1);
-            // CRIAR HELPER DE PEDIDOITEM PRA ADICIONAR AO CONTEXTO
-            var postResponse = await _client.PostAsJsonAsync(url, pedidoItem);
-            postResponse.EnsureSuccessStatusCode();
+            var pedidoItem = pedidoItemHelper.CriarPedidoItemValido(itemCriado.Id, 1);
+            await pedidoItemHelper.CriarPedidoItem_NoContexto(pedidoItem, url);
 
             var finishResponse = await _client.PatchAsync($"{_url}/{pedidoCriado1.Id}", null);
 

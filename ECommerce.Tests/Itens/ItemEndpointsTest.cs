@@ -86,7 +86,7 @@ namespace ECommerce.Tests.Itens
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
-            var atualizacao = new ItemUpdateDTO() { Preco = 9.85M };
+            var atualizacao = itemHelper.CriarAtualizacaoValida();
 
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
             patchResponse.EnsureSuccessStatusCode();

@@ -40,6 +40,15 @@ namespace ECommerce.Tests.Helpers
             };
         }
 
+        public ItemUpdateDTO CriarAtualizacaoValida()
+        {
+            return new ItemUpdateDTO()
+            {
+                Preco = 9.85M,
+                EstoqueNovo = 10
+            };
+        }
+
         public async Task<ItemResponseDTO> CriarItemValido_NoContexto(ItemCreateDTO itemValido)
         {
             var postResponse = await _client.PostAsJsonAsync(_url, itemValido);
@@ -84,6 +93,14 @@ namespace ECommerce.Tests.Helpers
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemId}", novasInformacoes);
             if (!patchResponse.IsSuccessStatusCode)
                 throw new Exception("Item não foi possivel atualizar o item.");
+        }
+
+        public async Task RemoverItem_NoContexto(Guid itemId)
+        {
+            var deleteResponse = await _client.DeleteAsync($"{_url}/{itemId}");
+            if (!deleteResponse.IsSuccessStatusCode)
+                throw new Exception("Item não foi possivel atualizar o item.");
+
         }
     }
 }

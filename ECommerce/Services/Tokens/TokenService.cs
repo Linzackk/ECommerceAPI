@@ -26,7 +26,7 @@ namespace ECommerce.Services.Tokens
 
             var claims = new Claim[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, login.IdUsuario.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, login.IdUsuario.ToString().ToLower()),
                 new Claim("isAdmin", isAdmin.ToString())
             };
 

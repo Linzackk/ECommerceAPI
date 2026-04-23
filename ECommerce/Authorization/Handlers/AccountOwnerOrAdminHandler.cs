@@ -1,6 +1,7 @@
 ﻿using ECommerce.Authorization.Policies;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ECommerce.Authorization.Handlers
 {
@@ -15,7 +16,7 @@ namespace ECommerce.Authorization.Handlers
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccountOwnerOrAdminRequirement requirement)
         {
-            var httpContext = _httpContextAccessor.HttpContext;
+            var httpContext = context.Resource as HttpContext;
 
             var isAdmin = context.User.FindFirst("isAdmin")?.Value == "true";
             if (isAdmin)
@@ -24,13 +25,21 @@ namespace ECommerce.Authorization.Handlers
                 return Task.CompletedTask;
             }
 
-            var userIdClaim = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                context.Fail();
+                return Task.CompletedTask;
+            }
 
             var routeId = httpContext?.GetRouteValue("id")?.ToString();
+            if (userIdClaim != routeId)
+            {
+                context.Fail();
+                return Task.CompletedTask;
+            }
 
-            if (userIdClaim != null && userIdClaim == routeId)
-                context.Succeed(requirement);
-
+            context.Succeed(requirement);
             return Task.CompletedTask;
         }
     }

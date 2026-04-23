@@ -29,13 +29,24 @@ namespace ECommerce.Authorization.Handlers
 
             var userIdClaim = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             if (userIdClaim == null)
+            {
+                context.Fail();
                 return;
+            }
 
             var routeValue = httpContext?.GetRouteValue("pedidoId")?.ToString();
-            if (!Guid.TryParse(routeValue, out var pedidoId)) return;
+            if (!Guid.TryParse(routeValue, out var pedidoId))
+            {
+                context.Fail();
+                return;
+            }
 
             var pedido = await _pedidoRepository.ObterPedidoPorId(pedidoId);
-            if (pedido == null) return;
+            if (pedido == null)
+            {
+                context.Fail();
+                return;
+            }
 
             if (userIdClaim != null && pedido.IdUsuario == Guid.Parse(userIdClaim))
                 context.Succeed(requirement);

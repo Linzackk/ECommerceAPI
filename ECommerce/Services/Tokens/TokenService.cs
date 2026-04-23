@@ -17,17 +17,16 @@ namespace ECommerce.Services.Tokens
             _key = config["Jwt:Key"];
             _admin = config.GetSection("AdminEmail").Get<List<String>>();
         }
-        public string GerarToken(Usuario user)
+        public string GerarToken(Login login)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_key);
 
-            var isAdmin = _admin.Contains(user.Email);
+            var isAdmin = _admin.Contains(login.Email);
 
             var claims = new Claim[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Name, user.Nome),
+                new Claim(JwtRegisteredClaimNames.Sub, login.IdUsuario.ToString()),
                 new Claim("isAdmin", isAdmin.ToString())
             };
 

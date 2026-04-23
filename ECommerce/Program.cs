@@ -7,6 +7,7 @@ using ECommerce.Repositories.Usuarios;
 using ECommerce.Services.Itens;
 using ECommerce.Services.Logins;
 using ECommerce.Services.Pedidos;
+using ECommerce.Services.Tokens;
 using ECommerce.Services.Usuarios;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -32,6 +33,8 @@ builder.Services.AddScoped<IItemService, ItemService>();
 
 builder.Services.AddScoped<IPedidosRepository, PedidosRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 DotNetEnv.Env.Load();
 

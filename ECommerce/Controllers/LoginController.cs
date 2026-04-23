@@ -1,12 +1,14 @@
 ﻿using ECommerce.DTOs.Login;
 using ECommerce.Models;
 using ECommerce.Services.Logins;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class LoginController : ControllerBase
     {
         private readonly ILoginService _service;
@@ -23,6 +25,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "IsAdmin" )]
         public async Task<IActionResult> ObterTodos()
         {
             return Ok(await _service.ObterTodos());

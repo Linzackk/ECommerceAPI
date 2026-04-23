@@ -1,3 +1,5 @@
+using ECommerce.Authorization.Handlers;
+using ECommerce.Authorization.Policies;
 using ECommerce.Data;
 using ECommerce.Middlewares;
 using ECommerce.Repositories.Itens;
@@ -9,6 +11,7 @@ using ECommerce.Services.Logins;
 using ECommerce.Services.Pedidos;
 using ECommerce.Services.Tokens;
 using ECommerce.Services.Usuarios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -21,6 +24,18 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsAdmin", policy =>
+        policy.RequireClaim("isAdmin", "true"));
+
+    options.AddPolicy("IsAccountOwnerOrAdmin", policy =>
+        policy.AddRequirements(new AccountOwnerOrAdminRequirement()));
+
+    options.AddPolicy("IsOrderOwnerOrAdmin", policy =>
+        policy.AddRequirements(new OrderOwnerOrAdminRequirement()));
+});
 
 builder.Services.AddScoped<IUsuariosRepository, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
@@ -35,6 +50,10 @@ builder.Services.AddScoped<IPedidosRepository, PedidosRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddScoped<IAuthorizationHandler, AccountOwnerOrAdminHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, OrderOwnerOrAdminHandler>();
+builder.Services.AddHttpContextAccessor();
 
 DotNetEnv.Env.Load();
 

@@ -3,6 +3,7 @@ using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Logins;
 using ECommerce.Services.Logins;
+using ECommerce.Services.Tokens;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -44,11 +45,15 @@ namespace ECommerce.Tests.Logins
             var login = CriarNovoLoginValido();
 
             var mock = new Mock<ILoginRepository>();
+            var mockTokenService = new Mock<ITokenService>();
+
+            mockTokenService.Setup(x => x.GerarToken(login))
+                .Returns("Token");
 
             mock.Setup(x => x.ObterPorEmail(emailTeste))
                 .ReturnsAsync(login);
 
-            var service = new LoginService(mock.Object);
+            var service = new LoginService(mock.Object, mockTokenService.Object);
 
             var resultado = await service.ProcurarLoginPorEmail(emailTeste);
 
@@ -61,8 +66,9 @@ namespace ECommerce.Tests.Logins
             var login = CriarNovoLoginDTOInvalido();
 
             var mock = new Mock<ILoginRepository>();
+            var tokenService = new Mock<ITokenService>();
 
-            var service = new LoginService(mock.Object);
+            var service = new LoginService(mock.Object, tokenService.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.CriarLogin(login));
         }
@@ -72,13 +78,19 @@ namespace ECommerce.Tests.Logins
         {
             var loginResponse = CriarNovoLoginValido();
             var loginCreate = CriarNovoLoginDTOValido();
+            var login = CriarNovoLoginValido();
 
             var mock = new Mock<ILoginRepository>();
 
-            mock.Setup(x => x.ObterPorEmail(emailTeste))
-                .ReturnsAsync(loginResponse);
+            var mockTokenService = new Mock<ITokenService>();
 
-            var service = new LoginService(mock.Object);
+            mockTokenService.Setup(x => x.GerarToken(login))
+                .Returns("Token");
+
+            mock.Setup(x => x.ObterPorEmail(emailTeste))
+                .ReturnsAsync(login);
+
+            var service = new LoginService(mock.Object, mockTokenService.Object);
 
             await service.CriarLogin(loginCreate);
 
@@ -94,14 +106,15 @@ namespace ECommerce.Tests.Logins
         [Fact]
         public async Task ProcurarLogin_DeveLancarErro_QuandoLoginNaoExistir()
         {
+            var loginResponse = CriarNovoLoginValido();
+            var loginCreate = CriarNovoLoginDTOValido();
             var login = CriarNovoLoginValido();
 
             var mock = new Mock<ILoginRepository>();
 
-            mock.Setup(x => x.ObterPorEmail(emailTeste))
-                .ReturnsAsync((Login?)null);
+            var mockTokenService = new Mock<ITokenService>();
 
-            var service = new LoginService(mock.Object);
+            var service = new LoginService(mock.Object, mockTokenService.Object);
 
             await Assert.ThrowsAsync<LoginCredenciaisInvalidasException>(() => service.ProcurarLoginPorEmail(emailTeste));
         }
@@ -112,6 +125,7 @@ namespace ECommerce.Tests.Logins
             var loginResponse = CriarNovoLoginValido();
             var loginCreate = CriarNovoLoginDTOValido();
             var loginEntrar = new LoginEntrarDTO();
+
             loginEntrar.Email = emailTeste;
             loginEntrar.Senha = senhaTeste;
 
@@ -120,14 +134,19 @@ namespace ECommerce.Tests.Logins
             mock.Setup(x => x.ObterPorEmail(emailTeste))
                 .ReturnsAsync(loginResponse);
 
-            var service = new LoginService(mock.Object);
+            var mockTokenService = new Mock<ITokenService>();
+
+            mockTokenService.Setup(x => x.GerarToken(loginResponse))
+                .Returns("Token");
+
+            var service = new LoginService(mock.Object, mockTokenService.Object);
 
             await service.CriarLogin(loginCreate);
 
             var response = await service.FazerLogin(loginEntrar);
 
             Assert.NotNull(response);
-            Assert.Equal("Login feito com sucesso.", response);
+            Assert.Equal("Token", response);
         }
     }
 }

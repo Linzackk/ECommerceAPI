@@ -59,7 +59,7 @@ namespace ECommerce.Tests.Logins
             var response = await loginPostResponse.Content.ReadAsStringAsync();
 
             Assert.NotNull(response);
-            Assert.Equal("Login feito com sucesso.", response);
+            Assert.NotEqual(string.Empty, response);
         }
 
         [Fact]

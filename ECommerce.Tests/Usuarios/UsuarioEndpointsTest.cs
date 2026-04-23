@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Usuarios;
+﻿using Azure.Core;
+using ECommerce.DTOs.Usuarios;
 using ECommerce.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,13 +18,17 @@ namespace ECommerce.Tests.Usuarios
     {
         private readonly string _url = "api/Usuarios";
         private readonly HttpClient _client;
+        private LoginHelper loginHelper;
         private UsuarioHelper helper;
         private readonly Guid IdTeste = Guid.NewGuid();
+        private readonly CustomWebApplicationFactory _factory;
 
         public UsuarioEndpointsTest(CustomWebApplicationFactory factory)
         {
+            _factory = factory;
             _client = factory.CreateClient();
             helper = new UsuarioHelper(_client);
+            loginHelper = new LoginHelper(_client);
         }
 
         [Fact]
@@ -61,19 +67,31 @@ namespace ECommerce.Tests.Usuarios
         {
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
 
-            var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
+            var authenticatedClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false,
+                HandleCookies = false
+            });
+            authenticatedClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var responseProcura = await authenticatedClient.GetAsync($"{_url}/{usuarioCriado.Id}");
             Assert.Equal(HttpStatusCode.OK, responseProcura.StatusCode);
 
             var usuarioProcura = await responseProcura.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
             Assert.NotNull(usuarioProcura);
-
             Assert.Equal(usuarioCriado.Id, usuarioProcura.Id);
         }
 
         [Fact]
         public async Task Deve_ProcurarUsuarioInexistente_Retornar404()
         {
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
+
             var response = await _client.GetAsync($"{_url}/{IdTeste}");
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -151,6 +169,25 @@ namespace ECommerce.Tests.Usuarios
 
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Token_DeveSerValidado()
+        {
+            var response = await _client.GetAsync("/api/Usuarios/teste-auth");
+            Console.WriteLine($"Status sem token: {response.StatusCode}");
+
+            var usuario = helper.CriarUsuarioValido();
+            var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            var client2 = _factory.CreateClient();
+            client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response2 = await client2.GetAsync("/api/Usuarios/teste-auth");
+            Console.WriteLine($"Status com token: {response2.StatusCode}");
         }
     }   
 }

@@ -102,6 +102,7 @@ namespace ECommerce.Tests.Logins
             var getResponse = await _client.GetAsync(_urlLogin);
             Assert.NotNull(getResponse);
             Assert.Equal(HttpStatusCode.Forbidden, getResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
     }
 }

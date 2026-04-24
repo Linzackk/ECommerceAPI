@@ -23,7 +23,7 @@ namespace ECommerce.Tests.Helpers
             return new UsuarioCreateDTO()
             {
                 Nome = "Nome Teste",
-                Email = "email@email.com",
+                Email = $"email_{Guid.NewGuid()}@email.com",
                 Cpf = "12121212121",
                 Telefone = "11999999999",
                 Cep = "00000000",

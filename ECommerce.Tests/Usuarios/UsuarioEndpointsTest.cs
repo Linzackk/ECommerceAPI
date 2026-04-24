@@ -34,6 +34,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_CriarNovoUsuario_Retorno201RespostaValida()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarUsuarioValido();
 
             var postResponse = await _client.PostAsJsonAsync(_url, usuario);
@@ -65,6 +66,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_ProcurarUsuarioExistente_Retorno200()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
             var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
@@ -83,6 +85,7 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_ProcurarUsuarioInexistente_Retornar404()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarAdminValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
@@ -94,11 +97,13 @@ namespace ECommerce.Tests.Usuarios
             var response = await _client.GetAsync($"{_url}/{IdTeste}");
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesValidas_Retorno204()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
@@ -111,11 +116,13 @@ namespace ECommerce.Tests.Usuarios
 
             var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
             responseUpdate.EnsureSuccessStatusCode();
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_AtualizarUsuarioExistente_VerificarInformacoesAtualizadas()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
@@ -137,11 +144,13 @@ namespace ECommerce.Tests.Usuarios
             Assert.NotNull(usuarioAtualizado);
             Assert.Equal(infoUpdate.Nome, usuarioAtualizado.Nome);
             Assert.Equal(infoUpdate.NumeroCasa, usuarioAtualizado.NumeroCasa);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_AtualizarUsuarioExistenteComInformacoesInvalidas_Retorno400()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
@@ -159,11 +168,13 @@ namespace ECommerce.Tests.Usuarios
             var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
             Assert.NotNull(responseUpdate);
             Assert.Equal(HttpStatusCode.BadRequest, responseUpdate.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_DeletarUsuarioExistente_Retorno204()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
@@ -175,11 +186,13 @@ namespace ECommerce.Tests.Usuarios
             var deleteResponse = await _client.DeleteAsync($"{_url}/{usuarioCriado.Id}");
             Assert.NotNull(deleteResponse);
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_DeletarUsuarioInexistente_Retorno404()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = helper.CriarAdminValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
@@ -192,6 +205,7 @@ namespace ECommerce.Tests.Usuarios
 
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
     }   
 }

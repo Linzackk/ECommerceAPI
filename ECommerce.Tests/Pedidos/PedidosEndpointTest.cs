@@ -23,6 +23,7 @@ namespace ECommerce.Tests.Pedidos
         private readonly UsuarioHelper usuarioHelper;
         private readonly ItemHelper itemHelper;
         private readonly PedidoItemHelper pedidoItemHelper;
+        private readonly LoginHelper loginHelper;
 
         public PedidosEndpointTest(CustomWebApplicationFactory factory)
         {
@@ -31,26 +32,56 @@ namespace ECommerce.Tests.Pedidos
             usuarioHelper = new UsuarioHelper(_client);
             itemHelper = new ItemHelper(_client);
             pedidoItemHelper = new PedidoItemHelper(_client);
+            loginHelper = new LoginHelper(_client);
+        }
+        private async Task<ItemResponseDTO> CriarItemNoContexto()
+        {
+            loginHelper.RemoverTokenDoClient();
+            var admin = usuarioHelper.CriarAdminValido();
+            var adminCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(admin);
+
+            var loginAdmin = loginHelper.CriarLoginEntrarValido(admin.Email, admin.Senha);
+            var tokenAdmin = await loginHelper.FazerLoginCorretamente(loginAdmin);
+
+            loginHelper.AdicionarTokenAoClient(tokenAdmin);
+
+            var item = itemHelper.CriarItemValido();
+            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+            loginHelper.RemoverTokenDoClient();
+            return itemCriado;
         }
 
         [Fact]
         public async Task Deve_CriarPedidoVazio_Retorno201()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
 
             var postResponse = await _client.PostAsJsonAsync(_url, pedido);
             postResponse.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_CriarPedidoComPedidoJaAberto_Retorno400()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
 
@@ -60,16 +91,22 @@ namespace ECommerce.Tests.Pedidos
             var postBadRequest = await _client.PostAsJsonAsync(_url, pedido);
 
             Assert.Equal(HttpStatusCode.BadRequest, postBadRequest.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_DeletarPedido_Retorno204()
         {
-            var item = itemHelper.CriarItemValido();
-            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+            loginHelper.RemoverTokenDoClient();
+            var itemCriado = await CriarItemNoContexto();
 
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
             var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
@@ -86,6 +123,7 @@ namespace ECommerce.Tests.Pedidos
             Assert.Equal(itemAtualizado.Estoque, itemCriado.Estoque);
 
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -97,22 +135,34 @@ namespace ECommerce.Tests.Pedidos
         [Fact]
         public async Task Deve_DeletarPedidoInexistente_Retorno404()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
 
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_FinalizarPedido_SemErros()
         {
-            var item = itemHelper.CriarItemValido();
-            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+            loginHelper.RemoverTokenDoClient();
+            var itemCriado = await CriarItemNoContexto();
 
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
             var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
@@ -130,9 +180,14 @@ namespace ECommerce.Tests.Pedidos
         [Fact]
         public async Task Deve_FinalizarPedidoSemItem_Retorno400()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
             var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
 
@@ -140,19 +195,26 @@ namespace ECommerce.Tests.Pedidos
 
             Assert.NotNull(finishResponse);
             Assert.Equal(HttpStatusCode.BadRequest, finishResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_FinalizarPedidoDuasVezes_Retorno400()
         {
-            var item = itemHelper.CriarItemValido();
-            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
+            loginHelper.RemoverTokenDoClient();
+            var itemCriado = await CriarItemNoContexto();
 
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
             var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
+
 
             var url = pedidoHelper.CriarUrlPedido(pedidoCriado.Id);
 
@@ -170,14 +232,19 @@ namespace ECommerce.Tests.Pedidos
         [Fact]
         public async Task Deve_ObterTodosPedidosDeUmUsuario_Resposta200()
         {
+            loginHelper.RemoverTokenDoClient();
+            var itemCriado = await CriarItemNoContexto();
+
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
 
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var pedido1 = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
             var pedidoCriado1 = await pedidoHelper.CriarPedido_NoContexto(pedido1);
-
-            var item = itemHelper.CriarItemValido();
-            var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
             var url = pedidoHelper.CriarUrlPedido(pedidoCriado1.Id);
 
@@ -201,8 +268,14 @@ namespace ECommerce.Tests.Pedidos
         [Fact]
         public async Task Deve_ObterPedidoExistentePeloId_Resposta200()
         {
+            loginHelper.RemoverTokenDoClient();
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var pedido = pedidoHelper.CriarPedidoValido(usuarioCriado.Id);
             var pedidoCriado = await pedidoHelper.CriarPedido_NoContexto(pedido);
@@ -212,15 +285,26 @@ namespace ECommerce.Tests.Pedidos
 
             Assert.NotNull(getResponse);
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_ObterPedidoInexistente_Resposta404()
         {
+            loginHelper.RemoverTokenDoClient();
+            var admin = usuarioHelper.CriarAdminValido();
+            var adminCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(admin);
+
+            var loginAdmin = loginHelper.CriarLoginEntrarValido(admin.Email, admin.Senha);
+            var tokenAdmin = await loginHelper.FazerLoginCorretamente(loginAdmin);
+
+            loginHelper.AdicionarTokenAoClient(tokenAdmin);
+
             var getResponse = await _client.GetAsync($"{_url}/{IdTeste}");
 
             Assert.NotNull(getResponse);
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
     }
 }

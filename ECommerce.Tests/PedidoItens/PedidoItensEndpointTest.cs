@@ -3,6 +3,7 @@ using ECommerce.DTOs.Pedidos;
 using ECommerce.DTOs.Usuarios;
 using ECommerce.Models;
 using ECommerce.Tests.Helpers;
+using Microsoft.IdentityModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace ECommerce.Tests.PedidoItens
         private readonly PedidoHelper pedidoHelper;
         private readonly ItemHelper itemHelper;
         private readonly PedidoItemHelper pedidoItemHelper;
+        private readonly LoginHelper loginHelper;
 
         private readonly Guid IdTeste = Guid.NewGuid();
 
@@ -34,6 +36,7 @@ namespace ECommerce.Tests.PedidoItens
             pedidoHelper = new PedidoHelper(_client);
             usuarioHelper = new UsuarioHelper(_client);
             itemHelper = new ItemHelper(_client);
+            loginHelper = new LoginHelper(_client);
         }
 
         [Fact]

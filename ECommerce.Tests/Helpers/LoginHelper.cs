@@ -53,5 +53,9 @@ namespace ECommerce.Tests.Helpers
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token);
         }
+        public void RemoverTokenDoClient()
+        {
+            _client.DefaultRequestHeaders.Authorization = null;
+        }
     }
 }

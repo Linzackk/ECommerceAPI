@@ -59,6 +59,7 @@ namespace ECommerce.Tests.Itens
             Assert.Equal(item.Preco, itemCriado.Preco);
             Assert.NotEqual(Guid.Empty, itemCriado.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemCriado.DataCriacao);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -76,6 +77,7 @@ namespace ECommerce.Tests.Itens
             var postResponse = await _client.PostAsJsonAsync(_url, item);
 
             Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -104,6 +106,7 @@ namespace ECommerce.Tests.Itens
             Assert.Equal(item.Preco, itemResponse.Preco);
             Assert.NotEqual(Guid.Empty, itemResponse.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -111,6 +114,7 @@ namespace ECommerce.Tests.Itens
         {
             var getResponse = await _client.GetAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+
         }
 
         [Fact]
@@ -148,6 +152,7 @@ namespace ECommerce.Tests.Itens
             Assert.Equal(atualizacao.Preco, itemResponse.Preco);
             Assert.NotEqual(Guid.Empty, itemResponse.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -168,6 +173,7 @@ namespace ECommerce.Tests.Itens
 
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
             Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -188,6 +194,7 @@ namespace ECommerce.Tests.Itens
             deleteResponse.EnsureSuccessStatusCode();
 
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -203,6 +210,7 @@ namespace ECommerce.Tests.Itens
 
             var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
     }

@@ -26,8 +26,8 @@ namespace ECommerce.Services.Tokens
 
             var claims = new Claim[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, login.IdUsuario.ToString().ToLower()),
-                new Claim("isAdmin", isAdmin.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, login.IdUsuario.ToString()),
+                new Claim("isAdmin", isAdmin.ToString().ToLower())
             };
 
             var credential = new SigningCredentials(

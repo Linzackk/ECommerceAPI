@@ -49,9 +49,8 @@ namespace ECommerce.Tests.Logins
         {
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
-            var usuarioInfos = usuarioHelper.CriarUsuarioValido();
 
-            var loginEntrar = CriarLoginEntrarValido(usuarioInfos.Email, usuarioInfos.Senha);
+            var loginEntrar = CriarLoginEntrarValido(usuario.Email, usuario.Senha);
 
             var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);
             loginPostResponse.EnsureSuccessStatusCode();

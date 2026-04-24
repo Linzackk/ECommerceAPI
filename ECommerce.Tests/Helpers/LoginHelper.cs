@@ -1,7 +1,9 @@
 ﻿using ECommerce.DTOs.Login;
+using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +46,12 @@ namespace ECommerce.Tests.Helpers
                 throw new Exception("Nenhuma resposta foi enviada.");
 
             return response;
+        }
+
+        public void AdicionarTokenAoClient(string token)
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

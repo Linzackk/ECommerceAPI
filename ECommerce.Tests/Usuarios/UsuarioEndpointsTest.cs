@@ -70,15 +70,9 @@ namespace ECommerce.Tests.Usuarios
             var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
             var token = await loginHelper.FazerLoginCorretamente(login);
 
-            var authenticatedClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false,
-                HandleCookies = false
-            });
-            authenticatedClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            loginHelper.AdicionarTokenAoClient(token);
 
-            var responseProcura = await authenticatedClient.GetAsync($"{_url}/{usuarioCriado.Id}");
+            var responseProcura = await _client.GetAsync($"{_url}/{usuarioCriado.Id}");
             Assert.Equal(HttpStatusCode.OK, responseProcura.StatusCode);
 
             var usuarioProcura = await responseProcura.Content.ReadFromJsonAsync<UsuarioResponseDTO>();
@@ -89,8 +83,13 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_ProcurarUsuarioInexistente_Retornar404()
         {
-            var usuario = helper.CriarUsuarioValido();
+            var usuario = helper.CriarAdminValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var response = await _client.GetAsync($"{_url}/{IdTeste}");
             Assert.NotNull(response);
@@ -102,6 +101,11 @@ namespace ECommerce.Tests.Usuarios
         {
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
 
             var infoUpdate = helper.CriarAtualizacaoValida();
 
@@ -115,11 +119,12 @@ namespace ECommerce.Tests.Usuarios
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
-            var infoUpdate = new UsuarioUpdateDTO()
-            {
-                Nome = "Novo Nome Teste",
-                NumeroCasa = "300"
-            };
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
+            var infoUpdate = helper.CriarAtualizacaoValida();
 
             var responseUpdate = await _client.PatchAsJsonAsync($"{_url}/{usuarioCriado.Id}", infoUpdate);
             responseUpdate.EnsureSuccessStatusCode();
@@ -140,6 +145,11 @@ namespace ECommerce.Tests.Usuarios
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var infoUpdate = new UsuarioUpdateDTO()
             {
                 Telefone = "Telefone2000",
@@ -157,6 +167,11 @@ namespace ECommerce.Tests.Usuarios
             var usuario = helper.CriarUsuarioValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var deleteResponse = await _client.DeleteAsync($"{_url}/{usuarioCriado.Id}");
             Assert.NotNull(deleteResponse);
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
@@ -165,29 +180,18 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task Deve_DeletarUsuarioInexistente_Retorno404()
         {
-            var response = await _client.DeleteAsync($"{_url}/{IdTeste}");
-
-            Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Token_DeveSerValidado()
-        {
-            var response = await _client.GetAsync("/api/Usuarios/teste-auth");
-            Console.WriteLine($"Status sem token: {response.StatusCode}");
-
-            var usuario = helper.CriarUsuarioValido();
+            var usuario = helper.CriarAdminValido();
             var usuarioCriado = await helper.CriarUsuarioValido_NoContexto(usuario);
 
             var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
             var token = await loginHelper.FazerLoginCorretamente(login);
 
-            var client2 = _factory.CreateClient();
-            client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            loginHelper.AdicionarTokenAoClient(token);
 
-            var response2 = await client2.GetAsync("/api/Usuarios/teste-auth");
-            Console.WriteLine($"Status com token: {response2.StatusCode}");
+            var response = await _client.DeleteAsync($"{_url}/{IdTeste}");
+
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }   
 }

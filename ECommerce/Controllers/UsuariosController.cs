@@ -54,12 +54,5 @@ namespace ECommerce.Controllers
             await _service.RemoverUsuario(id);
             return NoContent();
         }
-
-        [HttpGet("teste-auth")]
-        [Authorize]
-        public IActionResult TesteAuth()
-        {
-            return Ok(new { user = User.Identity?.Name, isAuth = User.Identity?.IsAuthenticated });
-        }
     }
 }

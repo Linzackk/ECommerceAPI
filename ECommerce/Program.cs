@@ -1,3 +1,5 @@
+using ECommerce.Authorization.Handlers;
+using ECommerce.Authorization.Policies;
 using ECommerce.Data;
 using ECommerce.Middlewares;
 using ECommerce.Repositories.Itens;
@@ -7,9 +9,14 @@ using ECommerce.Repositories.Usuarios;
 using ECommerce.Services.Itens;
 using ECommerce.Services.Logins;
 using ECommerce.Services.Pedidos;
+using ECommerce.Services.Tokens;
 using ECommerce.Services.Usuarios;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +27,64 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Jwt:Key não encontrada!"))),
+
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            Console.WriteLine($"Token recebido: {context.Token}");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync("{\"error\": \"Não autenticado\"}");
+        },
+        OnForbidden = context =>
+        {
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync("{\"error\": \"Acesso negado\"}");
+        }
+    };
+});
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsAdmin", policy =>
+        policy.RequireClaim("isAdmin", "true"));
+
+    options.AddPolicy("IsAccountOwnerOrAdmin", policy =>
+        policy.AddRequirements(new AccountOwnerOrAdminRequirement()));
+
+    options.AddPolicy("IsOrderOwnerOrAdmin", policy =>
+        policy.AddRequirements(new OrderOwnerOrAdminRequirement()));
+
+
+});
+
 
 builder.Services.AddScoped<IUsuariosRepository, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
@@ -32,6 +97,12 @@ builder.Services.AddScoped<IItemService, ItemService>();
 
 builder.Services.AddScoped<IPedidosRepository, PedidosRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddScoped<IAuthorizationHandler, AccountOwnerOrAdminHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, OrderOwnerOrAdminHandler>();
+builder.Services.AddHttpContextAccessor();
 
 DotNetEnv.Env.Load();
 
@@ -60,8 +131,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,9 +1,10 @@
 ﻿using ECommerce.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,30 +21,29 @@ namespace ECommerce.Tests
         {
             builder.UseEnvironment("Testing");
 
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
+                config.AddJsonFile("appsettings.json", optional: false);
+            });
+
             builder.ConfigureServices(services =>
             {
+                // remove e substitui o DbContext
                 var descriptors = services
                     .Where(d =>
                         d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
                         d.ServiceType == typeof(AppDbContext))
                     .ToList();
-
                 foreach (var descriptor in descriptors)
-                {
                     services.Remove(descriptor);
-                }
+
                 services.AddDbContext<AppDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase(_dbName);
-                });
+                    options.UseInMemoryDatabase(_dbName));
 
                 var sp = services.BuildServiceProvider();
-
-                using (var scope = sp.CreateScope())
-                {
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    db.Database.EnsureCreated();
-                }
+                using var scope = sp.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.EnsureCreated();
             });
         }
     }

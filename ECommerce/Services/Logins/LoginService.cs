@@ -2,16 +2,18 @@
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Logins;
+using ECommerce.Services.Tokens;
 
 namespace ECommerce.Services.Logins
 {
     public class LoginService : ILoginService
     {
         private readonly ILoginRepository _repository;
-
-        public LoginService(ILoginRepository repository)
+        private readonly ITokenService _tokenService;
+        public LoginService(ILoginRepository repository, ITokenService tokenService)
         {
             _repository = repository;
+            _tokenService = tokenService;
         }
 
         public async Task<IReadOnlyCollection<Login>> ObterTodos()
@@ -26,7 +28,7 @@ namespace ECommerce.Services.Logins
             if (!BCrypt.Net.BCrypt.Verify(credenciais.Senha, login.Senha))
                 throw new LoginCredenciaisInvalidasException();
 
-            var token = "Login feito com sucesso.";
+            var token = _tokenService.GerarToken(login);
             return token;
         }
 

@@ -1,11 +1,14 @@
 ﻿using ECommerce.DTOs.Pedidos;
 using ECommerce.Services.Pedidos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ECommerce.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PedidosController : ControllerBase
     {
         private readonly IPedidoService _service;
@@ -15,14 +18,22 @@ namespace ECommerce.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CriarPedido([FromBody] PedidoCreateDTO novoPedido)
         {
+            var userIdClaim = User.FindFirst("sub")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null || Guid.Parse(userIdClaim) != novoPedido.IdUsuario)
+                return Forbid();
             var pedido = await _service.CriarNovoPedido(novoPedido);
+
             return Ok(pedido);
             //return CreatedAtAction(nameof(ObterPedidoPorId), new { Id = pedido.Id }, pedido);
         }
 
         [HttpGet("{usuarioId}")] // Com JWT vou remover e manter só o get e então pegar todos do id do usuario contido no JWT
+        [Authorize]
         public async Task<IActionResult> ObterPedidoPorUsuarioId(Guid usuarioId)
         {
             var pedidos = await _service.ObterTodosPedidosUsuario(usuarioId);
@@ -30,6 +41,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPatch("{pedidoId}")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> FinalizarPedido(Guid pedidoId)
         {
             await _service.FinalizarPedido(pedidoId);
@@ -37,6 +49,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpDelete("{pedidoId}")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> RemoverPedido(Guid pedidoId)
         {
             await _service.RemoverPedido(pedidoId);
@@ -44,6 +57,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPost("{pedidoId}/Itens")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> AdicionarItemAoPedido([FromBody] PedidoItemCreateDTO novoPedidoItem, Guid pedidoId)
         {
             await _service.AdicionarItemNoPedido(novoPedidoItem, pedidoId);
@@ -51,6 +65,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpGet("{pedidoId}/Itens")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> ObterPedidoPorId(Guid pedidoId)
         {
             var pedido = await _service.ObterPedidoPorId(pedidoId);
@@ -58,6 +73,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPatch("{pedidoId}/Itens")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> AtualizarItemNoPedido([FromBody] PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)
         {
             await _service.AtualizarItemNoPedido(pedidoItemAtualizado, pedidoId);
@@ -65,6 +81,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpDelete("{pedidoId}/Itens/{pedidoItemRemove}")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> RemoverItemDoPedido(Guid pedidoItemRemove, Guid pedidoId)
         {
             await _service.RemoverItemNoPedido(pedidoItemRemove, pedidoId);

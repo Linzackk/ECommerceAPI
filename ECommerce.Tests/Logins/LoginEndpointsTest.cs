@@ -17,12 +17,14 @@ namespace ECommerce.Tests.Logins
         private readonly string _urlLogin = "api/Login";
         private readonly string _urlUsuario = "api/Usuarios";
         private readonly HttpClient _client;
-        private UsuarioHelper usuarioHelper;
+        private readonly UsuarioHelper usuarioHelper;
+        private readonly LoginHelper loginHelper;
 
         public LoginEndpointsTest(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
             usuarioHelper = new UsuarioHelper(_client);
+            loginHelper = new LoginHelper(_client);
         }
         private LoginEntrarDTO CriarLoginEntrarValido(string email, string senha)
         {
@@ -47,9 +49,8 @@ namespace ECommerce.Tests.Logins
         {
             var usuario = usuarioHelper.CriarUsuarioValido();
             var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
-            var usuarioInfos = usuarioHelper.CriarUsuarioValido();
 
-            var loginEntrar = CriarLoginEntrarValido(usuarioInfos.Email, usuarioInfos.Senha);
+            var loginEntrar = CriarLoginEntrarValido(usuario.Email, usuario.Senha);
 
             var loginPostResponse = await _client.PostAsJsonAsync(_urlLogin, loginEntrar);
             loginPostResponse.EnsureSuccessStatusCode();
@@ -59,7 +60,7 @@ namespace ECommerce.Tests.Logins
             var response = await loginPostResponse.Content.ReadAsStringAsync();
 
             Assert.NotNull(response);
-            Assert.Equal("Login feito com sucesso.", response);
+            Assert.NotEqual(string.Empty, response);
         }
 
         [Fact]
@@ -76,6 +77,31 @@ namespace ECommerce.Tests.Logins
             var response = await loginPostResponse.Content.ReadAsStringAsync();
 
             Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task Deve_AcessarEndpointSemAutenticacao_Retorno401()
+        {
+            var getResponse = await _client.GetAsync(_urlLogin);
+            Assert.NotNull(getResponse);
+            Assert.Equal(HttpStatusCode.Unauthorized, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Deve_AcessarEnpointAdminOnlyUsuarioComum_Retorno403()
+        {
+            var usuario = usuarioHelper.CriarUsuarioValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
+            var getResponse = await _client.GetAsync(_urlLogin);
+            Assert.NotNull(getResponse);
+            Assert.Equal(HttpStatusCode.Forbidden, getResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
     }
 }

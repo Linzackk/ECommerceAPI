@@ -1,5 +1,6 @@
 ﻿using ECommerce.DTOs.Itens;
 using ECommerce.Tests.Helpers;
+using Microsoft.IdentityModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace ECommerce.Tests.Itens
         private readonly ItemHelper itemHelper;
         private readonly UsuarioHelper usuarioHelper;
         private readonly PedidoHelper pedidoHelper;
+        private readonly LoginHelper loginHelper;
         private readonly PedidoItemHelper pedidoItemHelper;
 
         public ItemEndpointsTest(CustomWebApplicationFactory factory)
@@ -27,11 +29,20 @@ namespace ECommerce.Tests.Itens
             usuarioHelper = new UsuarioHelper(_client);
             pedidoHelper = new PedidoHelper(_client);
             pedidoItemHelper = new PedidoItemHelper(_client);
+            loginHelper = new LoginHelper(_client);
         }
 
         [Fact]
         public async Task Deve_CriarNovoItem_Retorno201()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var item = itemHelper.CriarItemValido();
 
             var postResponse = await _client.PostAsJsonAsync(_url, item);
@@ -48,20 +59,38 @@ namespace ECommerce.Tests.Itens
             Assert.Equal(item.Preco, itemCriado.Preco);
             Assert.NotEqual(Guid.Empty, itemCriado.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemCriado.DataCriacao);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_CriarNovoItem_Retorno400()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var item = itemHelper.CriarItemInvalido();
             var postResponse = await _client.PostAsJsonAsync(_url, item);
 
             Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_CriarItem_BuscarItemRetorno200()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
@@ -77,6 +106,7 @@ namespace ECommerce.Tests.Itens
             Assert.Equal(item.Preco, itemResponse.Preco);
             Assert.NotEqual(Guid.Empty, itemResponse.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
@@ -84,11 +114,20 @@ namespace ECommerce.Tests.Itens
         {
             var getResponse = await _client.GetAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+
         }
 
         [Fact]
         public async Task Deve_AtualizarItemCorretamente_Retorno204()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
@@ -113,11 +152,20 @@ namespace ECommerce.Tests.Itens
             Assert.Equal(atualizacao.Preco, itemResponse.Preco);
             Assert.NotEqual(Guid.Empty, itemResponse.Id);
             Assert.Equal(DateOnly.FromDateTime(DateTime.Now), itemResponse.DataCriacao);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_AtualizarItem_LancarExcecaoComInformacoesVazias()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
@@ -125,11 +173,20 @@ namespace ECommerce.Tests.Itens
 
             var patchResponse = await _client.PatchAsJsonAsync($"{_url}/{itemCriado.Id}", atualizacao);
             Assert.Equal(HttpStatusCode.BadRequest, patchResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_RemoverItemExistente_Retorno204()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var item = itemHelper.CriarItemValido();
             var itemCriado = await itemHelper.CriarItemValido_NoContexto(item);
 
@@ -137,13 +194,23 @@ namespace ECommerce.Tests.Itens
             deleteResponse.EnsureSuccessStatusCode();
 
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
         [Fact]
         public async Task Deve_RemoverItemInexistente_Retorno404()
         {
+            var usuario = usuarioHelper.CriarAdminValido();
+            var usuarioCriado = await usuarioHelper.CriarUsuarioValido_NoContexto(usuario);
+
+            var login = loginHelper.CriarLoginEntrarValido(usuario.Email, usuario.Senha);
+            var token = await loginHelper.FazerLoginCorretamente(login);
+
+            loginHelper.AdicionarTokenAoClient(token);
+
             var deleteResponse = await _client.DeleteAsync($"{_url}/{IdTeste}");
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+            loginHelper.RemoverTokenDoClient();
         }
 
     }

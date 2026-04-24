@@ -33,6 +33,22 @@ namespace ECommerce.Tests.Helpers
                 Senha = "senhaTeste"
             };
         }
+        
+        public UsuarioCreateDTO CriarAdminValido()
+        {
+            return new UsuarioCreateDTO()
+            {
+                Nome = "Nome Teste",
+                Email = "admin@admin.com",
+                Cpf = "12121212121",
+                Telefone = "11999999999",
+                Cep = "00000000",
+                Cidade = "SP",
+                Rua = "Rua do Teste",
+                NumeroCasa = "400",
+                Senha = "senhaTeste"
+            };
+        }
         public UsuarioCreateDTO CriarUsuarioInvalido()
         {
             return new UsuarioCreateDTO()

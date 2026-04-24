@@ -1,11 +1,13 @@
 ﻿using ECommerce.DTOs.Itens;
 using ECommerce.Services.Itens;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ItensController : ControllerBase
     {
         private readonly IItemService _service;
@@ -15,6 +17,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> CriarNovoItem([FromBody] ItemCreateDTO novoItem)
         {
             var itemCriado = await _service.CriarNovoItem(novoItem);
@@ -22,6 +25,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterPorId(Guid id)
         {
             var item = await _service.ObterItemPorId(id);
@@ -29,6 +33,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> AtualizarItem([FromBody] ItemUpdateDTO itemAtualizado, Guid id)
         {
             await _service.AtualizarItem(itemAtualizado, id);
@@ -36,6 +41,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> RemoverItem(Guid id)
         {
             await _service.RemoverItem(id);
@@ -43,6 +49,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterTodos()
         {
             var itens = await _service.ObterTodos();

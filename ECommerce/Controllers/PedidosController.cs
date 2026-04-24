@@ -57,6 +57,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPost("{pedidoId}/Itens")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> AdicionarItemAoPedido([FromBody] PedidoItemCreateDTO novoPedidoItem, Guid pedidoId)
         {
             await _service.AdicionarItemNoPedido(novoPedidoItem, pedidoId);
@@ -72,6 +73,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpPatch("{pedidoId}/Itens")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> AtualizarItemNoPedido([FromBody] PedidoItemUpdateDTO pedidoItemAtualizado, Guid pedidoId)
         {
             await _service.AtualizarItemNoPedido(pedidoItemAtualizado, pedidoId);
@@ -79,6 +81,7 @@ namespace ECommerce.Controllers
         }
 
         [HttpDelete("{pedidoId}/Itens/{pedidoItemRemove}")]
+        [Authorize(Policy = "IsOrderOwnerOrAdmin")]
         public async Task<IActionResult> RemoverItemDoPedido(Guid pedidoItemRemove, Guid pedidoId)
         {
             await _service.RemoverItemNoPedido(pedidoItemRemove, pedidoId);

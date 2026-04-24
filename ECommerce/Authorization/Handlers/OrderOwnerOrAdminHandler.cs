@@ -1,7 +1,9 @@
 ﻿using ECommerce.Authorization.Policies;
+using ECommerce.Exceptions;
 using ECommerce.Repositories.Pedidos;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ECommerce.Authorization.Handlers
 {
@@ -27,7 +29,7 @@ namespace ECommerce.Authorization.Handlers
                 return;
             }
 
-            var userIdClaim = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null)
             {
                 context.Fail();
@@ -44,8 +46,7 @@ namespace ECommerce.Authorization.Handlers
             var pedido = await _pedidoRepository.ObterPedidoPorId(pedidoId);
             if (pedido == null)
             {
-                context.Fail();
-                return;
+                throw new PedidoNotFound();
             }
 
             if (userIdClaim != null && pedido.IdUsuario == Guid.Parse(userIdClaim))

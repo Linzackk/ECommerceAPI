@@ -8,8 +8,19 @@ namespace ECommerce.Profiles
     {
         public UsuarioProfile()
         {
-            CreateMap<Usuario, UsuarioResponseDTO>();
-            CreateMap<UsuarioCreateDTO, Usuario>();
+            CreateMap<Usuario, UsuarioResponseDTO>()
+                .ForMember(dest => dest.NumeroCasa, opt => opt.MapFrom(src => src.Numero));
+            CreateMap<UsuarioCreateDTO, Usuario>()
+                .ConstructUsing(src => new Usuario(
+                    src.Nome,
+                    src.Telefone,
+                    src.Rua,
+                    src.Cidade,
+                    src.NumeroCasa,
+                    src.Cep,
+                    src.Cpf,
+                    src.Email
+                ));
         }
     }
 }

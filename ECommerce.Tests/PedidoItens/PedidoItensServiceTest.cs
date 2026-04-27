@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Itens;
+﻿using AutoMapper;
+using ECommerce.DTOs.Itens;
 using ECommerce.DTOs.Pedidos;
 using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
@@ -111,7 +112,9 @@ namespace ECommerce.Tests.PedidoItens
             mockItem.Setup(x => x.ObterPorId(IdTeste))
                 .ReturnsAsync(itemResponse);
 
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
 
             await service.AdicionarItemNoPedido(item, IdTeste);
         }
@@ -134,7 +137,9 @@ namespace ECommerce.Tests.PedidoItens
             mockItem.Setup(x => x.ObterPorId(IdTeste))
                 .ReturnsAsync(itemResponse);
 
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AdicionarItemNoPedido(item, IdTeste));
             mock.Verify(x => x.AdicionarItemNoPedido(), Times.Never);
@@ -158,7 +163,9 @@ namespace ECommerce.Tests.PedidoItens
             mockItem.Setup(x => x.ObterPorId(item.Id))
                 .ReturnsAsync(item);
 
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
             await service.AtualizarItemNoPedido(itemUpdate, IdTeste);
         }
 
@@ -175,7 +182,9 @@ namespace ECommerce.Tests.PedidoItens
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
 
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
             await Assert.ThrowsAsync<ItemNotFoundException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never());
         }
@@ -197,8 +206,10 @@ namespace ECommerce.Tests.PedidoItens
 
             mockItem.Setup(x => x.ObterPorId(item.Id))
                 .ReturnsAsync(item);
-            
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItemNoPedido(itemUpdate, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never());
         }
@@ -221,7 +232,9 @@ namespace ECommerce.Tests.PedidoItens
             mockItem.Setup(x => x.ObterPorId(item.Id))
                 .ReturnsAsync(item);
 
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
 
             await service.RemoverItemNoPedido(item.Id, IdTeste);
         }
@@ -238,7 +251,9 @@ namespace ECommerce.Tests.PedidoItens
             mock.Setup(x => x.ObterPedidoPorId(IdTeste))
                 .ReturnsAsync(pedido);
 
-            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new PedidoService(mock.Object, mockUsuario.Object, mockItem.Object, mockMapper.Object);
 
             await Assert.ThrowsAsync<PedidoItemNotFound>(() => service.RemoverItemNoPedido(IdTeste, IdTeste));
             mock.Verify(x => x.AtualizarPedido(It.IsAny<Pedido>()), Times.Never);

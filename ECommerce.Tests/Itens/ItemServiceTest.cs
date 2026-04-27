@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Itens;
+﻿using AutoMapper;
+using ECommerce.DTOs.Itens;
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Itens;
@@ -44,7 +45,21 @@ namespace ECommerce.Tests.Itens
             mock.Setup(x => x.ObterItemPorId(IdTeste))
                 .ReturnsAsync(item);
 
-            var service = new ItemService(mock.Object);
+            var responseEsperada = new ItemResponseDTO()
+            {
+                Nome = item.Nome,
+                Descricao = item.Descricao,
+                Estoque = item.Estoque,
+                Preco = item.Preco,
+                Id = IdTeste,
+                DataCriacao = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<ItemResponseDTO>(item))
+                .Returns(responseEsperada);
+
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             var resultado = await service.ObterItemPorId(IdTeste);
 
@@ -59,7 +74,26 @@ namespace ECommerce.Tests.Itens
 
             var mock = new Mock<IItemRepository>();
 
-            var service = new ItemService(mock.Object);
+            var item = new Item(itemCreate.Nome, itemCreate.Descricao, itemCreate.Estoque, itemCreate.Preco);
+
+            var responseEsperada = new ItemResponseDTO()
+            {
+                Nome = item.Nome,
+                Descricao = item.Descricao,
+                Estoque = item.Estoque,
+                Preco = item.Preco,
+                Id = IdTeste,
+                DataCriacao = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<ItemResponseDTO>(item))
+                .Returns(responseEsperada);
+
+            mockMapper.Setup(x => x.Map<Item>(itemCreate))
+                .Returns(item);
+
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             var resultado = await service.CriarNovoItem(itemCreate);
 
@@ -76,7 +110,12 @@ namespace ECommerce.Tests.Itens
 
             var mock = new Mock<IItemRepository>();
 
-            var service = new ItemService(mock.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<Item>(itemInvalido))
+                .Throws(new ParametroInvalidoException("Nome vazio"));
+
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.CriarNovoItem(itemInvalido));
             mock.Verify(x => x.CriarItem(It.IsAny<Item>()), Times.Never);
@@ -88,8 +127,9 @@ namespace ECommerce.Tests.Itens
             var atualizacaoInvalida = new ItemUpdateDTO();
 
             var mock = new Mock<IItemRepository>();
+            var mockMapper = new Mock<IMapper>();
 
-            var service = new ItemService(mock.Object);
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             await Assert.ThrowsAsync<ParametroInvalidoException>(() => service.AtualizarItem(atualizacaoInvalida, IdTeste));
             mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Never);
@@ -107,7 +147,22 @@ namespace ECommerce.Tests.Itens
             mock.Setup(x => x.ObterItemPorId(IdTeste))
                 .ReturnsAsync(item);
 
-            var service = new ItemService(mock.Object);
+            var responseEsperada = new ItemResponseDTO()
+            {
+                Nome = item.Nome,
+                Descricao = item.Descricao,
+                Estoque = item.Estoque,
+                Preco = item.Preco,
+                Id = IdTeste,
+                DataCriacao = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<ItemResponseDTO>(item))
+                .Returns(responseEsperada);
+
+
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             await service.AtualizarItem(atualizacaoValida, IdTeste);
             mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);
@@ -123,7 +178,9 @@ namespace ECommerce.Tests.Itens
             mock.Setup(x => x.ObterItemPorId(IdTeste))
                 .ReturnsAsync(item);
 
-            var service = new ItemService(mock.Object);
+            var mockMapper = new Mock<IMapper>();
+
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             await service.RemoverItem(IdTeste);
             mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);
@@ -136,8 +193,9 @@ namespace ECommerce.Tests.Itens
             var item = CriarItemValido();
 
             var mock = new Mock<IItemRepository>();
+            var mockMapper = new Mock<IMapper>();
 
-            var service = new ItemService(mock.Object);
+            var service = new ItemService(mock.Object, mockMapper.Object);
 
             await Assert.ThrowsAsync<ItemNotFoundException>(() => service.RemoverItem(IdTeste));
             mock.Verify(x => x.ObterItemPorId(It.IsAny<Guid>()), Times.Once);

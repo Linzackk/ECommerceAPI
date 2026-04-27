@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Login;
+﻿using AutoMapper;
+using ECommerce.DTOs.Login;
 using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
@@ -43,16 +44,33 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task BuscarUsuario_DeveRetornarUsuario()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
+
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                 .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
             var resultado = await service.ObterUsuarioPorId(id);
 
@@ -68,13 +86,32 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task ProcurarUsuario_DeveLancarErro_QuandoUsuarioNaoExistir()
         {
+            var id = Guid.NewGuid();
+
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
+
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
             mock.Setup(x => x.ObterUsuarioPorId(It.IsAny<Guid>()))
                 .ReturnsAsync((Usuario?)null);
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
             await Assert.ThrowsAsync<UsuarioNotFound>(() => service.ObterUsuarioPorId(It.IsAny<Guid>()));
         }
@@ -82,22 +119,46 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveCriarUsuario_UsuarioCriadoComSucesso_RepositorioChamadoUmaVez()
         {
+            var id = Guid.NewGuid();
+
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
+            var novoUsuario = CriarUsuarioCreateDTOTeste();
+
+
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
-            var usuario = await service.CriarNovoUsuario(CriarUsuarioCreateDTOTeste());
+            mockMapper.Setup(x => x.Map<Usuario>(novoUsuario))
+                .Returns(usuario);
 
-            Assert.NotNull(usuario);
-            Assert.NotEqual(Guid.Empty, usuario.Id);
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
-            Assert.Equal(nomeTeste, usuario.Nome);
-            Assert.Equal(telefoneTeste, usuario.Telefone);
-            Assert.Equal(ruaTeste, usuario.Rua);
-            Assert.Equal(numeroTeste, usuario.NumeroCasa);
-            Assert.Equal(cidadeTeste, usuario.Cidade);
-            Assert.Equal(cepTeste, usuario.Cep);
+            var usuarioCriado = await service.CriarNovoUsuario(novoUsuario);
+
+            Assert.NotNull(usuarioCriado);
+            Assert.NotEqual(Guid.Empty, usuarioCriado.Id);
+
+            Assert.Equal(nomeTeste, usuarioCriado.Nome);
+            Assert.Equal(telefoneTeste, usuarioCriado.Telefone);
+            Assert.Equal(ruaTeste, usuarioCriado.Rua);
+            Assert.Equal(numeroTeste, usuarioCriado.NumeroCasa);
+            Assert.Equal(cidadeTeste, usuarioCriado.Cidade);
+            Assert.Equal(cepTeste, usuarioCriado.Cep);
 
             mock.Verify(x => x.CriarUsuario(It.IsAny<Usuario>()), Times.Once);
         }
@@ -105,16 +166,32 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveAtualizarUsuario_UsuarioAtualizadoComSucesso()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
+
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
             string nomeAtualizado = "Novo Nome";
             string novoTelefone = "99111111111";
@@ -137,15 +214,31 @@ namespace ECommerce.Tests.Usuarios
         public async Task DeveRemoverUsuario_UsuarioDeveLancarExcecao_QuandoBuscado()
         {
             var id = Guid.NewGuid();
+
             var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
             await service.RemoverUsuario(id);
 
@@ -155,16 +248,32 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarTelefone_TelefoneInvalido()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
+
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
             string novoTelefone = "123";
 
@@ -179,16 +288,32 @@ namespace ECommerce.Tests.Usuarios
         [Fact]
         public async Task DeveLancarExcecaoParametroInvalido_QuandoAtualizarCep_CepInvalido()
         {
-            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
             var id = Guid.NewGuid();
+
+            var usuario = new Usuario(nomeTeste, telefoneTeste, ruaTeste, cidadeTeste, numeroTeste, cepTeste, cpfTeste, emailTeste);
+            var responseEsperado = new UsuarioResponseDTO()
+            {
+                Nome = nomeTeste,
+                Cep = cepTeste,
+                Cidade = cidadeTeste,
+                Email = emailTeste,
+                Id = id,
+                NumeroCasa = numeroTeste,
+                Rua = ruaTeste,
+                Telefone = telefoneTeste
+            };
 
             var mock = new Mock<IUsuariosRepository>();
             var mockLogin = new Mock<ILoginService>();
+            var mockMapper = new Mock<IMapper>();
+
+            mockMapper.Setup(x => x.Map<UsuarioResponseDTO>(usuario))
+                .Returns(responseEsperado);
 
             mock.Setup(x => x.ObterUsuarioPorId(id))
                .ReturnsAsync(usuario);
 
-            var service = new UsuariosService(mock.Object, mockLogin.Object);
+            var service = new UsuariosService(mock.Object, mockLogin.Object, mockMapper.Object);
 
             string novoCep = "123";
 

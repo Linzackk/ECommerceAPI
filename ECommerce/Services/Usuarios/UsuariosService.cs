@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Login;
+﻿using AutoMapper;
+using ECommerce.DTOs.Login;
 using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
@@ -12,75 +13,31 @@ namespace ECommerce.Services.Usuarios
     {
         private readonly IUsuariosRepository _repository;
         private readonly ILoginService _loginService;
-        public UsuariosService(IUsuariosRepository repository, ILoginService loginService)
+        private readonly IMapper _mapper;
+        public UsuariosService(IUsuariosRepository repository, ILoginService loginService, IMapper mapper)
         {
             _repository = repository;
             _loginService = loginService;
+            _mapper = mapper;
         }
 
         public async Task<UsuarioResponseDTO> CriarNovoUsuario(UsuarioCreateDTO novoUsuario)
         {
-            Usuario usuario = CriarModelPorDTO(novoUsuario);
+            var usuario = _mapper.Map<Usuario>(novoUsuario);
 
-            Console.WriteLine($"\nID DO USUARIO: {usuario.Id}\n");
-
-            var novoLogin = CriarLoginDTO(novoUsuario.Email, novoUsuario.Senha, usuario.Id);
+            var novoLogin = new LoginCreateDTO() { Email = usuario.Email, Senha = novoUsuario.Senha, IdUsuario = usuario.Id };
 
             await _repository.CriarUsuario(usuario);
             await _loginService.CriarLogin(novoLogin);
 
-            Console.WriteLine($"\nID DO USUARIO: {usuario.Id}\n");
-
-            return CriarResponseDTO(usuario);
-        }
-
-        private static Usuario CriarModelPorDTO(UsuarioCreateDTO novoUsuario)
-        {
-            return new Usuario(
-                novoUsuario.Nome,
-                novoUsuario.Telefone,
-                novoUsuario.Rua,
-                novoUsuario.Cidade,
-                novoUsuario.NumeroCasa,
-                novoUsuario.Cep,
-                novoUsuario.Cpf,
-                novoUsuario.Email
-            );
-        }
-
-        private static LoginCreateDTO CriarLoginDTO(string email, string senha, Guid usuarioId)
-        {
-            var login = new LoginCreateDTO();
-
-            login.Email = email;
-            login.Senha = senha;
-            login.IdUsuario = usuarioId;
-
-            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {login.Email}, {login.Senha}, {login.IdUsuario}");
-
-            return login;
-        }
-
-        private UsuarioResponseDTO CriarResponseDTO(Usuario usuario)
-        {
-            var response = new UsuarioResponseDTO();
-            response.Id = usuario.Id;
-            response.Nome = usuario.Nome;
-            response.Telefone = usuario.Telefone;
-            response.Rua = usuario.Rua;
-            response.Cidade = usuario.Cidade;
-            response.NumeroCasa = usuario.Numero;
-            response.Cep = usuario.Cep;
-            response.Email = usuario.Email;
-
-            return response;
+            return _mapper.Map<UsuarioResponseDTO>(usuario);
         }
 
         public async Task<UsuarioResponseDTO> ObterUsuarioPorId(Guid id)
         {
             Usuario usuario = await ObterUsuarioRepository(id);
 
-            return CriarResponseDTO(usuario);
+            return _mapper.Map<UsuarioResponseDTO>(usuario);
         }
 
         private async Task<Usuario> ObterUsuarioRepository(Guid id)
@@ -135,9 +92,9 @@ namespace ECommerce.Services.Usuarios
             await _repository.RemoverUsuario(usuario);
         }
 
-        public async Task<IReadOnlyCollection<Usuario>> ObterTodos()
+        public async Task<IReadOnlyCollection<UsuarioResponseDTO>> ObterTodos()
         {
-            return await _repository.ObterTodos();
+            return _mapper.Map<IReadOnlyCollection<UsuarioResponseDTO>>(await _repository.ObterTodos());
         }
     }
 }

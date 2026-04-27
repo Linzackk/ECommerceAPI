@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Itens;
+﻿using AutoMapper;
+using ECommerce.DTOs.Itens;
 using ECommerce.Exceptions;
 using ECommerce.Models;
 using ECommerce.Repositories.Itens;
@@ -8,34 +9,12 @@ namespace ECommerce.Services.Itens
     public class ItemService : IItemService
     {
         private readonly IItemRepository _repository;
-        public ItemService(IItemRepository repository)
+        private readonly IMapper _mapper;
+        public ItemService(IItemRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
-
-        private Item CriarItemPorDTO(ItemCreateDTO novoItem)
-        {
-            return new Item(
-                novoItem.Nome,
-                novoItem.Descricao,
-                novoItem.Estoque,
-                novoItem.Preco
-            );
-        }
-
-        private ItemResponseDTO CriarResponsePorItem(Item item)
-        {
-            return new ItemResponseDTO()
-            {
-                Id = item.Id,
-                Nome = item.Nome,
-                Descricao = item.Descricao,
-                Estoque = item.Estoque,
-                Preco = item.Preco,
-                DataCriacao = item.DataCriacao
-            };
-        }
-
         public async Task<Item> ObterPorId(Guid id)
         {
             var item = await _repository.ObterItemPorId(id);
@@ -47,15 +26,15 @@ namespace ECommerce.Services.Itens
 
         public async Task<ItemResponseDTO> CriarNovoItem(ItemCreateDTO novoItem)
         {
-            var item = CriarItemPorDTO(novoItem);
+            var item = _mapper.Map<Item>(novoItem);
             await _repository.CriarItem(item);
-            return CriarResponsePorItem(item);
+            return _mapper.Map<ItemResponseDTO>(item);
         }
 
         public async Task<ItemResponseDTO> ObterItemPorId(Guid itemId)
         {
             var item = await ObterPorId(itemId);
-            return CriarResponsePorItem(item);
+            return _mapper.Map<ItemResponseDTO>(item);
         }
 
         public async Task AtualizarItem(ItemUpdateDTO itemAtualizado, Guid itemId)
@@ -85,14 +64,8 @@ namespace ECommerce.Services.Itens
         public async Task<IReadOnlyCollection<ItemResponseDTO>> ObterTodos()
         {
             var itens = await _repository.ObterTodos();
-            var response = new List<ItemResponseDTO>();
 
-            foreach (var item in itens)
-            {
-                response.Add(CriarResponsePorItem(item));
-            }
-
-            return response;
+            return _mapper.Map<IReadOnlyCollection<ItemResponseDTO>>(itens);
         }
     }
 }

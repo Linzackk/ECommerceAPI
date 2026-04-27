@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Login;
+﻿using AutoMapper;
+using ECommerce.DTOs.Login;
 using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
@@ -12,26 +13,24 @@ namespace ECommerce.Services.Usuarios
     {
         private readonly IUsuariosRepository _repository;
         private readonly ILoginService _loginService;
-        public UsuariosService(IUsuariosRepository repository, ILoginService loginService)
+        private readonly IMapper _mapper;
+        public UsuariosService(IUsuariosRepository repository, ILoginService loginService, IMapper mapper)
         {
             _repository = repository;
             _loginService = loginService;
+            _mapper = mapper;
         }
 
         public async Task<UsuarioResponseDTO> CriarNovoUsuario(UsuarioCreateDTO novoUsuario)
         {
-            Usuario usuario = CriarModelPorDTO(novoUsuario);
-
-            Console.WriteLine($"\nID DO USUARIO: {usuario.Id}\n");
+            var usuario = _mapper.Map<Usuario>(novoUsuario);
 
             var novoLogin = CriarLoginDTO(novoUsuario.Email, novoUsuario.Senha, usuario.Id);
 
             await _repository.CriarUsuario(usuario);
             await _loginService.CriarLogin(novoLogin);
 
-            Console.WriteLine($"\nID DO USUARIO: {usuario.Id}\n");
-
-            return CriarResponseDTO(usuario);
+            return _mapper.Map<UsuarioResponseDTO>(usuario);
         }
 
         private static Usuario CriarModelPorDTO(UsuarioCreateDTO novoUsuario)

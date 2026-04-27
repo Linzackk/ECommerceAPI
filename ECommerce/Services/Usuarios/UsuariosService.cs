@@ -33,20 +33,6 @@ namespace ECommerce.Services.Usuarios
             return _mapper.Map<UsuarioResponseDTO>(usuario);
         }
 
-        private static Usuario CriarModelPorDTO(UsuarioCreateDTO novoUsuario)
-        {
-            return new Usuario(
-                novoUsuario.Nome,
-                novoUsuario.Telefone,
-                novoUsuario.Rua,
-                novoUsuario.Cidade,
-                novoUsuario.NumeroCasa,
-                novoUsuario.Cep,
-                novoUsuario.Cpf,
-                novoUsuario.Email
-            );
-        }
-
         private static LoginCreateDTO CriarLoginDTO(string email, string senha, Guid usuarioId)
         {
             var login = new LoginCreateDTO();
@@ -59,27 +45,11 @@ namespace ECommerce.Services.Usuarios
 
             return login;
         }
-
-        private UsuarioResponseDTO CriarResponseDTO(Usuario usuario)
-        {
-            var response = new UsuarioResponseDTO();
-            response.Id = usuario.Id;
-            response.Nome = usuario.Nome;
-            response.Telefone = usuario.Telefone;
-            response.Rua = usuario.Rua;
-            response.Cidade = usuario.Cidade;
-            response.NumeroCasa = usuario.Numero;
-            response.Cep = usuario.Cep;
-            response.Email = usuario.Email;
-
-            return response;
-        }
-
         public async Task<UsuarioResponseDTO> ObterUsuarioPorId(Guid id)
         {
             Usuario usuario = await ObterUsuarioRepository(id);
 
-            return CriarResponseDTO(usuario);
+            return _mapper.Map<UsuarioResponseDTO>(usuario);
         }
 
         private async Task<Usuario> ObterUsuarioRepository(Guid id)

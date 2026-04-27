@@ -1,4 +1,5 @@
-﻿using ECommerce.DTOs.Pedidos;
+﻿using AutoMapper;
+using ECommerce.DTOs.Pedidos;
 using ECommerce.DTOs.Usuarios;
 using ECommerce.Exceptions;
 using ECommerce.Models;
@@ -13,38 +14,13 @@ namespace ECommerce.Services.Pedidos
         private readonly IPedidosRepository _repository;
         private readonly IUsuariosService _usuarioService;
         private readonly IItemService _itemService;
-        public PedidoService(IPedidosRepository repository, IUsuariosService usuarioService, IItemService itemService)
+        private readonly IMapper _mapper;
+        public PedidoService(IPedidosRepository repository, IUsuariosService usuarioService, IItemService itemService, IMapper mapper)
         {
             _repository = repository;
             _usuarioService = usuarioService;
             _itemService = itemService;
-        }
-
-        private PedidoResponseDTO CriarPedidoResponse(Pedido pedidoModel)
-        {
-            var itensFormatados = new List<PedidoItemResponseDTO>();
-            foreach(var pedidoItem in pedidoModel.Itens)
-            {
-                itensFormatados.Add(CriarItemPedidoResponse(pedidoItem));
-            }
-
-            return new PedidoResponseDTO()
-            {
-                Id = pedidoModel.Id,
-                Itens = itensFormatados,
-                ValorTotal = pedidoModel.CalcularTotal()
-            };
-        }
-
-        private PedidoItemResponseDTO CriarItemPedidoResponse(PedidoItem pedidoItemModel)
-        {
-            return new PedidoItemResponseDTO()
-            {
-                IdItem = pedidoItemModel.Id,
-                Nome = pedidoItemModel.Item?.Nome ?? string.Empty,
-                Preco = pedidoItemModel.ValorUnitario,
-                Quantidade = pedidoItemModel.Quantidade
-            };
+            _mapper = mapper;
         }
         private async Task ValidarExistenciaUsuario(Guid idUsuario)
         {
@@ -62,26 +38,22 @@ namespace ECommerce.Services.Pedidos
             var pedido = new Pedido(novoPedido.IdUsuario);
             await _repository.CriarNovoPedido(pedido);
 
-            return CriarPedidoResponse(pedido);
+            return _mapper.Map<PedidoResponseDTO>(pedido);
         }
 
         public async Task<PedidoResponseDTO> ObterPedidoPorId(Guid pedidoId)
         {
             var pedido = await ObterPedidoPeloId(pedidoId);
 
-            return CriarPedidoResponse(pedido);
+            return _mapper.Map<PedidoResponseDTO>(pedido);
         }
 
         public async Task<IReadOnlyCollection<PedidoResponseDTO>> ObterTodosPedidosUsuario(Guid usuarioId)
         {
             var usuario = await _usuarioService.ObterUsuarioPorId(usuarioId);
             var pedidos = await _repository.ObterPedidosPorIdUsuario(usuarioId);
-            var pedidosReponse = new List<PedidoResponseDTO>();
 
-            foreach (var pedido in pedidos)
-                pedidosReponse.Add(CriarPedidoResponse(pedido));
-
-            return pedidosReponse;
+            return _mapper.Map<IReadOnlyCollection<PedidoResponseDTO>>(pedidos);
         }
 
         public async Task RemoverPedido(Guid pedidoId)

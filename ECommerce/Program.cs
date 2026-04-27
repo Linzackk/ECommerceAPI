@@ -104,6 +104,8 @@ builder.Services.AddScoped<IAuthorizationHandler, AccountOwnerOrAdminHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, OrderOwnerOrAdminHandler>();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 DotNetEnv.Env.Load();
 
 if (builder.Environment.IsEnvironment("Testing"))

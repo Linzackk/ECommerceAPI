@@ -10,6 +10,6 @@ namespace ECommerce.Services.Usuarios
 
         Task RemoverUsuario(Guid usuarioId);
         Task AtualizarUsuario(Guid usuarioId, UsuarioUpdateDTO usuarioAtualizado);
-        Task<IReadOnlyCollection<Usuario>> ObterTodos();
+        Task<IReadOnlyCollection<UsuarioResponseDTO>> ObterTodos();
     }
 }

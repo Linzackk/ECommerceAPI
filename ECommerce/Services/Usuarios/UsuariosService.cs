@@ -92,9 +92,9 @@ namespace ECommerce.Services.Usuarios
             await _repository.RemoverUsuario(usuario);
         }
 
-        public async Task<IReadOnlyCollection<Usuario>> ObterTodos()
+        public async Task<IReadOnlyCollection<UsuarioResponseDTO>> ObterTodos()
         {
-            return await _repository.ObterTodos();
+            return _mapper.Map<IReadOnlyCollection<UsuarioResponseDTO>>(await _repository.ObterTodos());
         }
     }
 }

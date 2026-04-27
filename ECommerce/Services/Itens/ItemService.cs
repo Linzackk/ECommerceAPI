@@ -26,7 +26,7 @@ namespace ECommerce.Services.Itens
 
         public async Task<ItemResponseDTO> CriarNovoItem(ItemCreateDTO novoItem)
         {
-            var item = _mapper.Map<Item>(novoItem) ;
+            var item = _mapper.Map<Item>(novoItem);
             await _repository.CriarItem(item);
             return _mapper.Map<ItemResponseDTO>(item);
         }

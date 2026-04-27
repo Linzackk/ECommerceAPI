@@ -25,7 +25,7 @@ namespace ECommerce.Services.Usuarios
         {
             var usuario = _mapper.Map<Usuario>(novoUsuario);
 
-            var novoLogin = CriarLoginDTO(novoUsuario.Email, novoUsuario.Senha, usuario.Id);
+            var novoLogin = new LoginCreateDTO() { Email = usuario.Email, Senha = novoUsuario.Senha, IdUsuario = usuario.Id };
 
             await _repository.CriarUsuario(usuario);
             await _loginService.CriarLogin(novoLogin);
@@ -33,18 +33,6 @@ namespace ECommerce.Services.Usuarios
             return _mapper.Map<UsuarioResponseDTO>(usuario);
         }
 
-        private static LoginCreateDTO CriarLoginDTO(string email, string senha, Guid usuarioId)
-        {
-            var login = new LoginCreateDTO();
-
-            login.Email = email;
-            login.Senha = senha;
-            login.IdUsuario = usuarioId;
-
-            Console.WriteLine($"NOVO LOGIN CRIADO COM INFOS: {login.Email}, {login.Senha}, {login.IdUsuario}");
-
-            return login;
-        }
         public async Task<UsuarioResponseDTO> ObterUsuarioPorId(Guid id)
         {
             Usuario usuario = await ObterUsuarioRepository(id);
